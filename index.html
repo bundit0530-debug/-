@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แดชบอร์ดแผนกหม้อต้ม</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2333;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --blue: #2d8cf0;
+  --teal: #1abc9c;
+  --orange: #e8973a;
+  --brown: #a0714f;
+  --purple: #9b59b6;
+  --green: #27ae60;
+  --cyan: #17c3b2;
+  --lavender: #7c83fd;
+  --red: #e74c3c;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'IBM Plex Sans Thai',sans-serif; background:var(--bg); color:var(--text); font-size:13px; min-height:100vh; }
+
+/* HEADER */
+.header {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:12px 20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+}
+.logo { width:40px;height:40px;background:linear-gradient(135deg,#2d8cf0,#1abc9c);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0; }
+.header-title h1 { font-size:14px;font-weight:700;line-height:1.4; }
+.header-title p  { font-size:11px;color:var(--muted);margin-top:2px; }
+.header-right { margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap; }
+.date-input {
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  padding:6px 10px;border-radius:6px;font-family:inherit;font-size:12px;cursor:pointer;
+}
+.live-badge {
+  display:flex;align-items:center;gap:5px;
+  background:rgba(26,188,156,0.1);border:1px solid rgba(26,188,156,0.3);
+  padding:5px 10px;border-radius:6px;font-size:11px;color:var(--teal);
+}
+.pulse { width:6px;height:6px;background:var(--teal);border-radius:50%;animation:pulse 1.5s infinite; }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* VIEW TABS */
+.view-bar {
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  padding:8px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.view-tabs { display:flex;gap:4px; }
+.vt {
+  padding:6px 16px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-family:inherit;font-size:12px;
+  cursor:pointer;transition:all .15s;font-weight:500;
+}
+.vt.active { background:var(--blue);border-color:var(--blue);color:#fff; }
+.vt:hover:not(.active) { background:var(--surface);color:var(--text); }
+.view-bar-right { margin-left:auto;display:flex;gap:8px;align-items:center; }
+.view-label { font-size:11px;color:var(--muted); }
+select.period-sel {
+  background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:5px 10px;border-radius:6px;font-family:inherit;font-size:11px;cursor:pointer;
+}
+
+/* KPI */
+.kpi-grid {
+  display:grid;grid-template-columns:repeat(8,1fr);
+  gap:1px;background:var(--border);border-bottom:1px solid var(--border);
+}
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi {
+  background:var(--surface);padding:14px 16px;position:relative;overflow:hidden;
+  cursor:pointer;transition:background .15s;
+}
+.kpi:hover { background:var(--surface2); }
+.kpi::before { content:'';position:absolute;top:0;left:0;right:0;height:3px; }
+.kpi.c0::before{background:var(--blue)} .kpi.c1::before{background:var(--purple)}
+.kpi.c2::before{background:var(--teal)} .kpi.c3::before{background:var(--brown)}
+.kpi.c4::before{background:var(--orange)} .kpi.c5::before{background:var(--cyan)}
+.kpi.c6::before{background:var(--green)} .kpi.c7::before{background:var(--lavender)}
+.kpi-lbl { font-size:10px;color:var(--muted);margin-bottom:5px;font-weight:500; }
+.kpi-val { font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1; }
+.kpi-unit { font-size:10px;color:var(--muted);margin-top:2px; }
+.kpi-sub  { font-size:10px;color:var(--muted);margin-top:6px; }
+.kpi-sub span { color:var(--text);font-weight:600; }
+.kpi.c0 .kpi-val{color:var(--blue)} .kpi.c1 .kpi-val{color:var(--purple)}
+.kpi.c2 .kpi-val{color:var(--teal)} .kpi.c3 .kpi-val{color:var(--brown)}
+.kpi.c4 .kpi-val{color:var(--orange)} .kpi.c5 .kpi-val{color:var(--cyan)}
+.kpi.c6 .kpi-val{color:var(--green)} .kpi.c7 .kpi-val{color:var(--lavender)}
+
+/* CHARTS */
+.charts-wrap { padding:0; }
+.charts-grid {
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--border);border-bottom:1px solid var(--border);
+}
+@media(max-width:1000px){.charts-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.charts-grid{grid-template-columns:1fr}}
+.cc { background:var(--surface);padding:14px; }
+.cc-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
+.cc-title { font-size:11px;font-weight:600; }
+.cc-avg { font-size:10px;color:var(--muted); }
+.cc-avg span { font-weight:700; }
+.cw { height:150px;position:relative; }
+
+/* TABLES */
+.tables-grid {
+  display:grid;grid-template-columns:1.2fr 0.8fr 1fr;
+  gap:1px;background:var(--border);border-bottom:1px solid var(--border);
+}
+@media(max-width:900px){.tables-grid{grid-template-columns:1fr}}
+.tc { background:var(--surface);padding:14px; }
+.tc-head {
+  font-size:12px;font-weight:700;margin-bottom:10px;padding-bottom:8px;
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;
+}
+.tc-head .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+table { width:100%;border-collapse:collapse; }
+th { font-size:10px;font-weight:600;color:var(--muted);text-align:left;padding:5px 6px;border-bottom:1px solid var(--border); }
+td { font-size:11px;padding:5px 6px;border-bottom:1px solid rgba(48,54,61,.4); }
+tr:last-child td{border-bottom:none}
+td.r,th.r{text-align:right;font-family:'IBM Plex Mono',monospace}
+tr:hover td{background:rgba(255,255,255,.02)}
+.hl { font-weight:700; }
+
+/* notice */
+.notice {
+  display:flex;gap:8px;background:rgba(45,140,240,.08);
+  border:1px solid rgba(45,140,240,.2);border-radius:6px;
+  padding:10px;margin-top:10px;
+}
+.notice p{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* weekly mini chart */
+.mini-cw { height:120px;position:relative;margin-top:8px; }
+
+/* hourly table view */
+.hourly-table-wrap { overflow-x:auto; }
+.hourly-table-wrap table th,.hourly-table-wrap table td { white-space:nowrap;font-size:11px; }
+.out-range { color:var(--red)!important;font-weight:700; }
+.in-range  { color:var(--teal); }
+
+.footer { text-align:center;padding:10px;font-size:10px;color:var(--muted);border-top:1px solid var(--border); }
+
+/* View panels */
+.panel { display:none; }
+.panel.active { display:block; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">🏭</div>
+  <div class="header-title">
+    <h1>แดชบอร์ดแผนกหม้อต้ม – น้ำอ้อยผสมปูนขาว – น้ำอ้อยพักใส – หม้อรอง</h1>
+    <p>ข้อมูลรายชั่วโมง | รายวัน | เฉลี่ยรายวัน | สะสม | รายสัปดาห์</p>
+  </div>
+  <div class="header-right">
+    <input type="date" class="date-input" id="dateInput" value="2025-05-16">
+    <div class="live-badge"><span class="pulse"></span>Live Update</div>
+  </div>
+</div>
+
+<!-- VIEW BAR -->
+<div class="view-bar">
+  <div class="view-tabs">
+    <button class="vt active" data-view="hourly">📊 รายชั่วโมง</button>
+    <button class="vt" data-view="daily">📅 รายวัน</button>
+    <button class="vt" data-view="avg">📈 เฉลี่ยรายวัน</button>
+    <button class="vt" data-view="cumulative">🔢 สะสม</button>
+    <button class="vt" data-view="weekly">📆 รายสัปดาห์</button>
+  </div>
+  <div class="view-bar-right">
+    <span class="view-label">เลือกสัปดาห์:</span>
+    <select class="period-sel" id="weekSel">
+      <option value="20">สัปดาห์ที่ 20 (12–18 พ.ค. 68)</option>
+      <option value="19">สัปดาห์ที่ 19 (5–11 พ.ค. 68)</option>
+      <option value="18">สัปดาห์ที่ 18 (28 เม.ย.–4 พ.ค. 68)</option>
+    </select>
+  </div>
+</div>
+
+<!-- KPI -->
+<div class="kpi-grid" id="kpiGrid"></div>
+
+<!-- PANELS -->
+<div id="panelHourly" class="panel active">
+  <div class="charts-grid" id="chartsRow1"></div>
+  <div class="charts-grid" id="chartsRow2"></div>
+  <div style="background:var(--surface);padding:16px;border-bottom:1px solid var(--border)">
+    <div class="tc-head" style="margin-bottom:12px">
+      <span class="dot" style="background:var(--blue)"></span>
+      ตารางข้อมูลรายชั่วโมง — วันที่ <span id="dateLabel">16 พ.ค. 2568</span>
+    </div>
+    <div class="hourly-table-wrap">
+      <table id="hourlyTable"></table>
+    </div>
+  </div>
+</div>
+
+<div id="panelDaily" class="panel">
+  <div style="background:var(--surface);padding:16px;border-bottom:1px solid var(--border)">
+    <div class="tc-head" style="margin-bottom:12px">
+      <span class="dot" style="background:var(--orange)"></span>
+      สรุปข้อมูลรายวัน (ค่าสูงสุด / ต่ำสุด / เฉลี่ย / สะสม)
+    </div>
+    <div class="hourly-table-wrap">
+      <table id="dailyTable"></table>
+    </div>
+  </div>
+</div>
+
+<div id="panelAvg" class="panel">
+  <div class="charts-grid" id="avgCharts"></div>
+  <div style="background:var(--surface);padding:16px;border-bottom:1px solid var(--border)">
+    <div class="tc-head" style="margin-bottom:12px">
+      <span class="dot" style="background:var(--teal)"></span>
+      ค่าเฉลี่ยรายวัน 7 วันย้อนหลัง
+    </div>
+    <div class="hourly-table-wrap"><table id="avgTable"></table></div>
+  </div>
+</div>
+
+<div id="panelCumulative" class="panel">
+  <div style="background:var(--surface);padding:16px;border-bottom:1px solid var(--border)">
+    <div class="tc-head" style="margin-bottom:12px">
+      <span class="dot" style="background:var(--green)"></span>
+      ข้อมูลสะสม — กากตะกอน / ปูนขาว / Flocculant
+    </div>
+    <div class="charts-grid" id="cumCharts" style="margin-bottom:12px"></div>
+    <div class="hourly-table-wrap"><table id="cumTable"></table></div>
+  </div>
+</div>
+
+<div id="panelWeekly" class="panel">
+  <div style="background:var(--surface);padding:16px;border-bottom:1px solid var(--border)">
+    <div class="tc-head" style="margin-bottom:12px">
+      <span class="dot" style="background:var(--purple)"></span>
+      สรุปรายสัปดาห์ — <span id="weekLabel">สัปดาห์ที่ 20 (12–18 พ.ค. 68)</span>
+    </div>
+    <div class="charts-grid" id="weeklyCharts" style="margin-bottom:12px"></div>
+    <div class="hourly-table-wrap"><table id="weeklyTable"></table></div>
+  </div>
+</div>
+
+<div class="footer">© แผนกหม้อต้ม | อัปเดตอัตโนมัติทุก 1 ชั่วโมง | สร้างด้วย Chart.js</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────
+const METRICS = [
+  { key:'ph1',   label:'pH ผสมปูน',         unit:'pH',     cls:'c0', color:'#2d8cf0', min:6.5,  max:8.0,  limitLo:6.8,  limitHi:7.6 },
+  { key:'ph2',   label:'pH พักใส',           unit:'pH',     cls:'c1', color:'#9b59b6', min:6.5,  max:8.0,  limitLo:6.8,  limitHi:7.5 },
+  { key:'ntu',   label:'ความใส',             unit:'NTU',    cls:'c2', color:'#1abc9c', min:0,    max:150,  limitLo:70,   limitHi:130 },
+  { key:'bga',   label:'กากตะกอน',           unit:'ตัน/ชม', cls:'c3', color:'#a0714f', min:0,    max:20,   limitLo:null, limitHi:null },
+  { key:'brix',  label:'ความหวาน',           unit:'°Brix',  cls:'c4', color:'#e8973a', min:14,   max:22,   limitLo:15,   limitHi:20  },
+  { key:'moist', label:'ความชื้นกาก',        unit:'%',      cls:'c5', color:'#17c3b2', min:40,   max:65,   limitLo:48,   limitHi:58  },
+  { key:'lime',  label:'อัตราการใช้ปูนขาว', unit:'kg/hr',  cls:'c6', color:'#27ae60', min:80,   max:180,  limitLo:null, limitHi:null },
+  { key:'floc',  label:'Flocculant',         unit:'L/hr',   cls:'c7', color:'#7c83fd', min:4,    max:14,   limitLo:null, limitHi:null },
+];
+
+// Generate hourly data for a day
+function genDay(base, amp, n=25) {
+  return Array.from({length:n},(_,i)=> +(base + amp*(Math.sin(i/4)+Math.random()*.4-.2)).toFixed(2));
+}
+
+const hours24 = Array.from({length:25},(_,i)=>i+':00').map(h=>h.length<5?'0'+h:h);
+hours24[24]='24:00';
+
+// Hourly data today
+const todayData = {
+  ph1:   genDay(7.20, 0.12),
+  ph2:   genDay(7.08, 0.10),
+  ntu:   genDay(94.2, 6),
+  bga:   genDay(12.5, 1.8),
+  brix:  genDay(17.5, 0.6),
+  moist: genDay(53.1, 2.0),
+  lime:  genDay(120.5, 8),
+  floc:  genDay(8.6, 0.8),
+};
+
+// 7-day averages
+const days7 = ['10 พ.ค.','11 พ.ค.','12 พ.ค.','13 พ.ค.','14 พ.ค.','15 พ.ค.','16 พ.ค.'];
+const avg7 = {
+  ph1:   [7.18,7.22,7.20,7.19,7.21,7.18,7.20],
+  ph2:   [7.05,7.10,7.08,7.06,7.09,7.07,7.08],
+  ntu:   [92,95,94,93,96,94,94.2],
+  bga:   [11.8,12.2,12.5,12.0,13.1,12.8,12.5],
+  brix:  [17.2,17.5,17.6,17.4,17.7,17.5,17.5],
+  moist: [52.8,53.2,53.5,53.0,52.9,53.4,53.1],
+  lime:  [118,122,120,119,121,118,120.5],
+  floc:  [8.2,8.6,8.8,8.5,8.7,8.4,8.6],
+};
+
+// Cumulative per day
+const cum7 = {
+  bga:  [128,131,135,129,140,136,135],
+  lime: [2831,2928,2901,2856,2912,2868,2892],
+  floc: [197,208,203,201,209,204,206],
+};
+
+// Weekly summary (7 days)
+const weekDays = ['12 พ.ค.','13 พ.ค.','14 พ.ค.','15 พ.ค.','16 พ.ค.','17 พ.ค.','18 พ.ค.'];
+const weekData = {
+  ph1:   [7.18,7.22,7.20,7.19,7.25,7.21,7.22],
+  ph2:   [7.05,7.10,7.08,7.06,7.12,7.09,7.07],
+  ntu:   [92,95,94,93,95.6,94,93.5],
+  brix:  [17.2,17.5,17.6,17.4,17.8,17.5,17.6],
+  moist: [52.5,53.0,53.5,52.8,52.6,53.2,52.8],
+  bgaCum:[128,131,135,129,135,136,131],
+  limeCum:[2831,2928,2901,2856,2892,2868,2880],
+  flocCum:[197,208,203,201,206,204,200],
+};
+
+// ─── CHART DEFAULTS ─────────────────────────────────────────────────
+const chartDefaults = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{
+    legend:{display:false},
+    tooltip:{backgroundColor:'#1c2333',borderColor:'#30363d',borderWidth:1,titleColor:'#8b949e',bodyColor:'#e6edf3',padding:8}
+  },
+  scales:{
+    x:{ticks:{color:'#8b949e',font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:13},grid:{color:'rgba(48,54,61,.5)'},border:{display:false}},
+    y:{ticks:{color:'#8b949e',font:{size:9}},grid:{color:'rgba(48,54,61,.5)'},border:{display:false}}
+  },
+  elements:{point:{radius:2,hoverRadius:5}}
+};
+
+let chartInstances = {};
+function destroyCharts(ids){ ids.forEach(id=>{ if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];} }); }
+
+function makeLineChart(canvasId, labels, datasets, yMin, yMax){
+  const ctx = document.getElementById(canvasId);
+  if(!ctx) return;
+  if(chartInstances[canvasId]){ chartInstances[canvasId].destroy(); }
+  chartInstances[canvasId] = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets },
+    options:{
+      ...chartDefaults,
+      scales:{
+        ...chartDefaults.scales,
+        y:{ ...chartDefaults.scales.y, min:yMin, max:yMax }
+      }
+    }
+  });
+}
+
+function makeBarChart(canvasId, labels, datasets){
+  const ctx = document.getElementById(canvasId);
+  if(!ctx) return;
+  if(chartInstances[canvasId]){ chartInstances[canvasId].destroy(); }
+  chartInstances[canvasId] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets },
+    options:{
+      ...chartDefaults,
+      plugins:{
+        ...chartDefaults.plugins,
+        legend:{display:true,position:'bottom',labels:{color:'#8b949e',font:{size:9},boxWidth:10,padding:6}}
+      }
+    }
+  });
+}
+
+// ─── KPI ────────────────────────────────────────────────────────────
+function renderKPI(){
+  const g = document.getElementById('kpiGrid');
+  g.innerHTML = METRICS.map((m,i)=>{
+    const d = todayData[m.key];
+    const cur = d[d.length-1];
+    const avg = (d.reduce((a,b)=>a+b,0)/d.length).toFixed(2);
+    const cum = m.key==='bga'?'135.0':m.key==='lime'?'2,892':m.key==='floc'?'206':null;
+    const subLabel = cum ? `สะสมวันนี้` : `ค่าเฉลี่ยวันนี้`;
+    const subVal = cum || avg;
+    return `<div class="kpi ${m.cls}">
+      <div class="kpi-lbl">${m.label}</div>
+      <div class="kpi-val">${cur}</div>
+      <div class="kpi-unit">${m.unit}</div>
+      <div class="kpi-sub">${subLabel} <span>${subVal}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── HOURLY PANEL ───────────────────────────────────────────────────
+function renderHourly(){
+  // Charts row 1
+  const r1 = document.getElementById('chartsRow1');
+  r1.innerHTML = METRICS.slice(0,4).map(m=>`
+    <div class="cc">
+      <div class="cc-head">
+        <div class="cc-title">${m.label} (${m.unit})</div>
+        <div class="cc-avg" style="color:${m.color}">เฉลี่ย <span>${(todayData[m.key].reduce((a,b)=>a+b,0)/todayData[m.key].length).toFixed(2)}</span></div>
+      </div>
+      <div class="cw"><canvas id="hc_${m.key}"></canvas></div>
+    </div>`).join('');
+  const r2 = document.getElementById('chartsRow2');
+  r2.innerHTML = METRICS.slice(4,8).map(m=>`
+    <div class="cc">
+      <div class="cc-head">
+        <div class="cc-title">${m.label} (${m.unit})</div>
+        <div class="cc-avg" style="color:${m.color}">เฉลี่ย <span>${(todayData[m.key].reduce((a,b)=>a+b,0)/todayData[m.key].length).toFixed(2)}</span></div>
+      </div>
+      <div class="cw"><canvas id="hc_${m.key}"></canvas></div>
+    </div>`).join('');
+
+  METRICS.forEach(m=>{
+    const avg = +(todayData[m.key].reduce((a,b)=>a+b,0)/todayData[m.key].length).toFixed(2);
+    makeLineChart('hc_'+m.key, hours24,
+      [
+        { data:todayData[m.key], borderColor:m.color, backgroundColor:m.color+'20', fill:true, tension:.4, borderWidth:2, pointBackgroundColor:m.color },
+        { data:Array(hours24.length).fill(avg), borderColor:m.color+'66', borderDash:[4,3], borderWidth:1, fill:false, pointRadius:0, tension:0 }
+      ], m.min, m.max
+    );
+  });
+
+  // Hourly table
+  const tbl = document.getElementById('hourlyTable');
+  const headerCols = ['ชั่วโมง',...METRICS.map(m=>`${m.label} (${m.unit})`)];
+  let html = `<thead><tr>${headerCols.map(c=>`<th class="r">${c}</th>`).join('')}</tr></thead><tbody>`;
+  for(let i=0;i<25;i++){
+    html += `<tr><td class="r" style="color:var(--muted)">${hours24[i]}</td>`;
+    METRICS.forEach(m=>{
+      const v = todayData[m.key][i];
+      let cls = '';
+      if(m.limitLo && v < m.limitLo) cls = 'out-range';
+      else if(m.limitHi && v > m.limitHi) cls = 'out-range';
+      html += `<td class="r ${cls}">${v}</td>`;
+    });
+    html += '</tr>';
+  }
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ─── DAILY PANEL ────────────────────────────────────────────────────
+function renderDaily(){
+  const tbl = document.getElementById('dailyTable');
+  let html = `<thead><tr>
+    <th>รายการ</th><th>หน่วย</th>
+    <th class="r">ค่าเฉลี่ย</th><th class="r">สูงสุด</th><th class="r">ต่ำสุด</th><th class="r">สะสม/รวม</th>
+  </tr></thead><tbody>`;
+  METRICS.forEach(m=>{
+    const d = todayData[m.key];
+    const avg = (d.reduce((a,b)=>a+b,0)/d.length).toFixed(2);
+    const hi  = Math.max(...d).toFixed(2);
+    const lo  = Math.min(...d).toFixed(2);
+    const cum = m.key==='bga'?'135.0':m.key==='lime'?'2,892':m.key==='floc'?'206':'-';
+    html += `<tr>
+      <td style="color:${m.color};font-weight:600">${m.label}</td>
+      <td style="color:var(--muted)">${m.unit}</td>
+      <td class="r hl">${avg}</td>
+      <td class="r" style="color:var(--red)">${hi}</td>
+      <td class="r" style="color:var(--teal)">${lo}</td>
+      <td class="r" style="color:var(--orange);font-weight:700">${cum}</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ─── AVERAGE PANEL ──────────────────────────────────────────────────
+function renderAvg(){
+  const c = document.getElementById('avgCharts');
+  c.innerHTML = METRICS.slice(0,4).map(m=>`
+    <div class="cc">
+      <div class="cc-head"><div class="cc-title">เฉลี่ยรายวัน — ${m.label}</div></div>
+      <div class="cw"><canvas id="ac_${m.key}"></canvas></div>
+    </div>`).join('')
+  + METRICS.slice(4,8).map(m=>`
+    <div class="cc">
+      <div class="cc-head"><div class="cc-title">เฉลี่ยรายวัน — ${m.label}</div></div>
+      <div class="cw"><canvas id="ac_${m.key}"></canvas></div>
+    </div>`).join('');
+
+  setTimeout(()=>{
+    METRICS.forEach(m=>{
+      makeLineChart('ac_'+m.key, days7,
+        [{ data:avg7[m.key], borderColor:m.color, backgroundColor:m.color+'20', fill:true, tension:.4, borderWidth:2, pointBackgroundColor:m.color, pointRadius:4 }],
+        m.min, m.max
+      );
+    });
+  },0);
+
+  // Table
+  const tbl = document.getElementById('avgTable');
+  let html = `<thead><tr><th>รายการ</th><th>หน่วย</th>${days7.map(d=>`<th class="r">${d}</th>`).join('')}<th class="r">เฉลี่ย 7 วัน</th></tr></thead><tbody>`;
+  METRICS.forEach(m=>{
+    const vals = avg7[m.key];
+    const wkAvg = (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2);
+    html += `<tr><td style="color:${m.color};font-weight:600">${m.label}</td><td style="color:var(--muted)">${m.unit}</td>`;
+    vals.forEach(v=>{ html+=`<td class="r">${v}</td>`; });
+    html += `<td class="r hl" style="color:${m.color}">${wkAvg}</td></tr>`;
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ─── CUMULATIVE PANEL ───────────────────────────────────────────────
+function renderCumulative(){
+  const c = document.getElementById('cumCharts');
+  const cumMetrics = [
+    {key:'bga',label:'กากตะกอนสะสม',unit:'ตัน',color:'#a0714f'},
+    {key:'lime',label:'ปูนขาวสะสม',unit:'kg',color:'#27ae60'},
+    {key:'floc',label:'Flocculant สะสม',unit:'L',color:'#7c83fd'},
+  ];
+  c.innerHTML = cumMetrics.map(m=>`
+    <div class="cc">
+      <div class="cc-head"><div class="cc-title">${m.label} (${m.unit})</div></div>
+      <div class="cw"><canvas id="cumc_${m.key}"></canvas></div>
+    </div>`).join('') + `<div class="cc"><div class="cc-head"><div class="cc-title">รวมสะสม 3 รายการ</div></div><div class="cw"><canvas id="cumc_all"></canvas></div></div>`;
+
+  setTimeout(()=>{
+    cumMetrics.forEach(m=>{
+      makeBarChart('cumc_'+m.key, days7,
+        [{ label:m.label, data:cum7[m.key], backgroundColor:m.color+'cc', borderRadius:3 }]
+      );
+    });
+    makeBarChart('cumc_all', days7, cumMetrics.map(m=>({
+      label:m.label, data:cum7[m.key].map(v=>+(v/Math.max(...cum7[m.key])*100).toFixed(1)),
+      backgroundColor:m.color+'cc', borderRadius:3
+    })));
+  },0);
+
+  const tbl = document.getElementById('cumTable');
+  let html = `<thead><tr><th>รายการ</th><th>หน่วย</th>${days7.map(d=>`<th class="r">${d}</th>`).join('')}<th class="r">รวม 7 วัน</th></tr></thead><tbody>`;
+  cumMetrics.forEach(m=>{
+    const vals = cum7[m.key];
+    const total = vals.reduce((a,b)=>a+b,0).toLocaleString();
+    html += `<tr><td style="color:${m.color};font-weight:600">${m.label}</td><td style="color:var(--muted)">${m.unit}</td>`;
+    vals.forEach(v=>{ html+=`<td class="r">${v.toLocaleString()}</td>`; });
+    html += `<td class="r hl" style="color:${m.color}">${total}</td></tr>`;
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ─── WEEKLY PANEL ───────────────────────────────────────────────────
+function renderWeekly(){
+  const c = document.getElementById('weeklyCharts');
+  c.innerHTML = METRICS.slice(0,4).map(m=>`
+    <div class="cc">
+      <div class="cc-head"><div class="cc-title">รายสัปดาห์ — ${m.label}</div></div>
+      <div class="cw"><canvas id="wc_${m.key}"></canvas></div>
+    </div>`).join('')
+  + METRICS.slice(4,8).map(m=>`
+    <div class="cc">
+      <div class="cc-head"><div class="cc-title">รายสัปดาห์ — ${m.label}</div></div>
+      <div class="cw"><canvas id="wc_${m.key}"></canvas></div>
+    </div>`).join('');
+
+  setTimeout(()=>{
+    METRICS.forEach(m=>{
+      const data = weekData[m.key] || weekData[m.key+'Cum'] || avg7[m.key];
+      makeBarChart('wc_'+m.key, weekDays,
+        [{ label:m.label, data, backgroundColor:m.color+'cc', borderRadius:3 }]
+      );
+    });
+  },0);
+
+  const tbl = document.getElementById('weeklyTable');
+  let html = `<thead><tr><th>รายการ</th><th>หน่วย</th>${weekDays.map(d=>`<th class="r">${d}</th>`).join('')}<th class="r">เฉลี่ย/รวม</th></tr></thead><tbody>`;
+  METRICS.forEach(m=>{
+    const isCum = ['bga','lime','floc'].includes(m.key);
+    const data = isCum ? weekData[m.key+'Cum'] : (weekData[m.key]||avg7[m.key]);
+    const summary = isCum
+      ? data.reduce((a,b)=>a+b,0).toLocaleString()
+      : (data.reduce((a,b)=>a+b,0)/data.length).toFixed(2);
+    html += `<tr><td style="color:${m.color};font-weight:600">${m.label}</td><td style="color:var(--muted)">${m.unit}</td>`;
+    data.forEach(v=>{ html+=`<td class="r">${typeof v==='number'?v.toLocaleString():v}</td>`; });
+    html += `<td class="r hl" style="color:${m.color}">${summary}</td></tr>`;
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ─── VIEW SWITCHING ─────────────────────────────────────────────────
+const panels = {
+  hourly:     document.getElementById('panelHourly'),
+  daily:      document.getElementById('panelDaily'),
+  avg:        document.getElementById('panelAvg'),
+  cumulative: document.getElementById('panelCumulative'),
+  weekly:     document.getElementById('panelWeekly'),
+};
+const renderers = { hourly:renderHourly, daily:renderDaily, avg:renderAvg, cumulative:renderCumulative, weekly:renderWeekly };
+let currentView = 'hourly';
+
+document.querySelectorAll('.vt').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.vt').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const v = btn.dataset.view;
+    panels[currentView].classList.remove('active');
+    panels[v].classList.add('active');
+    currentView = v;
+    renderers[v]();
+  });
+});
+
+// ─── INIT ───────────────────────────────────────────────────────────
+renderKPI();
+renderHourly();
+</script>
+</body>
+</html>
