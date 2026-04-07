@@ -9,38 +9,28 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
-:root {
-  --bg:   #edf1f7;
-  --surf: #f4f7fb;
-  --card: #ffffff;
-  --bd:   #c8d4e4;
-  --bd2:  #a8bcda;
-
-  --tx:   #0a1929;   /* very dark — main text */
-  --tx2:  #1e3a5f;   /* dark blue — sub text  */
-  --tx3:  #4a6080;   /* medium    — labels     */
-  --tx4:  #6b80a0;   /* light     — hints      */
-
-  --navy: #0a1929;
-  --blue: #1155cc;  --blueb:#ddeeff;  --bluel:#e8f0fe;
-  --grn:  #0d6b3c;  --grnb: #d4f0e4;
-  --amb:  #8b4000;  --ambb: #fef0d0;
-  --red:  #9b1c1c;  --redb: #fde8e8;
-  --ind:  #3730a3;  --indb: #e8e7ff;
-  --teal: #0e6b6b;  --tealb:#d0f0f0;
-  --pur:  #6b21a8;  --purb: #f3e8ff;
-
-  --sh:  0 1px 4px rgba(10,25,41,.10);
-  --sh2: 0 4px 16px rgba(10,25,41,.13);
+:root{
+  --bg:#edf1f7; --surf:#f4f7fb; --card:#fff; --bd:#c8d4e4; --bd2:#a8bcda;
+  --tx:#0a1929; --tx2:#1e3a5f; --tx3:#4a6080; --tx4:#6b80a0;
+  --navy:#0a1929; --navy2:#12253a;
+  --blue:#1155cc; --blueb:#ddeeff; --bluel:#e8f0fe;
+  --grn:#0d6b3c;  --grnb:#d4f0e4;
+  --amb:#8b4000;  --ambb:#fef0d0;
+  --red:#9b1c1c;  --redb:#fde8e8;
+  --ind:#3730a3;  --indb:#e8e7ff;
+  --teal:#0e6b6b; --tealb:#d0f0f0;
+  --pur:#6b21a8;  --purb:#f3e8ff;
+  --sh:0 1px 4px rgba(10,25,41,.10);
+  --sh2:0 4px 16px rgba(10,25,41,.13);
 }
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{font-size:14px;scroll-behavior:smooth}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;line-height:1.6}
 
-/* ══ HEADER ══════════════════════════════════════════════════════════ */
+/* ── HEADER ─────────────────────────────────────────────────────── */
 .hdr{background:var(--navy);padding:0 24px;display:flex;align-items:stretch;box-shadow:0 2px 10px rgba(0,0,0,.35);position:sticky;top:0;z-index:300}
-.hdr-brand{display:flex;align-items:center;gap:12px;padding:13px 20px 13px 0;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.hdr-brand{display:flex;align-items:center;gap:12px;padding:12px 20px 12px 0;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0}
 .hdr-logo{width:36px;height:36px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:18px}
 .brand-text strong{font-size:13px;font-weight:700;color:#fff;display:block}
 .brand-text small{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.4px}
@@ -48,27 +38,41 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
 .htab{display:flex;align-items:center;padding:0 16px;height:100%;background:none;border:none;color:rgba(255,255,255,.5);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:color .15s;border-bottom:3px solid transparent;white-space:nowrap;letter-spacing:.3px}
 .htab:hover{color:rgba(255,255,255,.85)}
 .htab.on{color:#fff;border-bottom-color:#60a5fa}
-.hdr-right{display:flex;align-items:center;gap:10px;padding:12px 0 12px 20px;border-left:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.hdr-right{display:flex;align-items:center;gap:8px;padding:10px 0 10px 16px;border-left:1px solid rgba(255,255,255,.1);flex-shrink:0}
 .hdr-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:5px 12px;border-radius:5px;font-size:11px;color:rgba(255,255,255,.65);font-weight:600}
 .blink{width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0;animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* ══ TOOLBAR ═════════════════════════════════════════════════════════ */
+/* Action buttons in header */
+.hdr-btn{display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:5px;border:none;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-pdf{background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.35);color:#fca5a5}
+.btn-pdf:hover{background:#dc2626;color:#fff;border-color:#dc2626}
+.btn-save{background:rgba(13,107,60,.15);border:1px solid rgba(13,107,60,.35);color:#6ee7b7}
+.btn-save:hover{background:#0d6b3c;color:#fff;border-color:#0d6b3c}
+.btn-xlsx{background:rgba(17,85,204,.15);border:1px solid rgba(17,85,204,.35);color:#93c5fd}
+.btn-xlsx:hover{background:#1155cc;color:#fff;border-color:#1155cc}
+
+/* ── TOOLBAR ─────────────────────────────────────────────────────── */
 .toolbar{background:var(--card);border-bottom:1px solid var(--bd);padding:9px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.upzone{display:flex;align-items:center;gap:10px;background:var(--surf);border:1.5px dashed var(--bd2);border-radius:7px;padding:8px 16px;cursor:pointer;transition:all .18s;flex:1;min-width:200px}
+.upzone{display:flex;align-items:center;gap:10px;background:var(--surf);border:1.5px dashed var(--bd2);border-radius:7px;padding:8px 16px;cursor:pointer;transition:all .18s;flex:1;min-width:180px}
 .upzone:hover,.upzone.drag{border-color:var(--blue);background:var(--bluel)}
 .upzone input{display:none}
 .up-label strong{font-size:12px;font-weight:700;color:var(--tx);display:block}
 .up-label span{font-size:11px;color:var(--tx3)}
-.fstatus{display:flex;align-items:center;gap:8px;background:var(--surf);border:1px solid var(--bd);border-radius:7px;padding:7px 14px;font-size:12px;color:var(--tx2);flex:1;min-width:180px}
+.fstatus{display:flex;align-items:center;gap:8px;background:var(--surf);border:1px solid var(--bd);border-radius:7px;padding:7px 14px;font-size:12px;color:var(--tx2);flex:1;min-width:160px}
 .sd{width:8px;height:8px;border-radius:50%;background:var(--bd);flex-shrink:0}
 .sd.ok{background:var(--grn)}.sd.err{background:var(--red)}.sd.sp{background:var(--amb);animation:blink 1s infinite}
-.info-note{background:var(--ambb);border:1px solid #e8c07a;border-radius:7px;padding:8px 14px;font-size:11px;color:#5a2d00;line-height:1.6;flex:1;min-width:180px}
+.info-note{background:var(--ambb);border:1px solid #e8c07a;border-radius:7px;padding:8px 14px;font-size:11px;color:#5a2d00;line-height:1.6;flex:1;min-width:160px}
 .info-note strong{display:block;font-size:12px;font-weight:700;color:#3d1a00;margin-bottom:1px}
-.btn-dl{background:var(--grnb);border:1.5px solid #7ecfaa;color:var(--grn);padding:8px 16px;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
-.btn-dl:hover{background:var(--grn);color:#fff}
+.btn-tpl{background:var(--grnb);border:1.5px solid #7ecfaa;color:var(--grn);padding:8px 14px;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-tpl:hover{background:var(--grn);color:#fff}
 
-/* ══ DATE BAR ════════════════════════════════════════════════════════ */
+/* ── ALERT BANNER ────────────────────────────────────────────────── */
+.alert-bar{display:none;background:#fff7ed;border-bottom:2px solid #fed7aa;padding:8px 24px;font-size:12px;color:#92400e;font-weight:600}
+.alert-bar.show{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.alert-item{display:flex;align-items:center;gap:5px;background:#fed7aa;padding:3px 10px;border-radius:4px;font-size:11px}
+
+/* ── DATE BAR ────────────────────────────────────────────────────── */
 .datebar{background:var(--surf);border-bottom:1px solid var(--bd);padding:8px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .db-label{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;flex-shrink:0}
 .db-ctrl{display:flex;align-items:center;gap:6px}
@@ -77,31 +81,32 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
 .arr{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--bd2);background:var(--card);color:var(--tx2);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
 .arr:hover{background:var(--bluel);border-color:var(--blue);color:var(--blue)}
 .db-info{font-size:11px;color:var(--tx3)}
+.db-ts{margin-left:auto;font-size:10px;color:var(--tx4);font-style:italic}
 
-/* ══ PANELS ══════════════════════════════════════════════════════════ */
+/* ── PANELS ──────────────────────────────────────────────────────── */
 .panel{display:none}.panel.on{display:block}
 .page{padding:20px 24px}
-
-/* ══ SECTION HEADER ══════════════════════════════════════════════════ */
 .sec{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--bd)}
 .sec h2{font-size:15px;font-weight:800;color:var(--tx)}
-.sec .chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px}
-.sec-sub{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.7px;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+.chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px}
+.sec-sub{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.7px;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
 .sec-sub::after{content:'';flex:1;height:1px;background:var(--bd)}
-.mb20{margin-bottom:20px}
 
-/* ══ CARD GRID ═══════════════════════════════════════════════════════ */
-.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px}
-.kcard{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:14px 15px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
+/* ── CARDS ───────────────────────────────────────────────────────── */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:16px}
+.kcard{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:13px 14px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
 .kcard:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
 .kcard-top{position:absolute;top:0;left:0;right:0;height:3px;border-radius:9px 9px 0 0}
 .kcard-lbl{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;line-height:1.4;margin-bottom:5px}
-.kcard-val{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1.1;color:var(--tx)}
+.kcard-val{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1.1}
 .kcard-unit{font-size:10px;color:var(--tx3);font-weight:600;margin-top:2px}
 .kcard-bar{height:4px;background:var(--bd);border-radius:2px;margin-top:9px;overflow:hidden}
 .kcard-fill{height:100%;border-radius:2px;transition:width .5s ease}
+.kcard-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.kcard-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
+.kcard-alert{position:absolute;top:6px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--red)}
 
-/* ══ CHART GRIDS ═════════════════════════════════════════════════════ */
+/* ── CHART GRIDS ─────────────────────────────────────────────────── */
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
 @media(max-width:960px){.g4,.g3{grid-template-columns:repeat(2,1fr)}}
@@ -113,7 +118,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
 .cc-sub{font-size:10px;color:var(--tx3);margin-bottom:8px}
 .cbody{height:140px;position:relative}
 
-/* ══ TABLES ══════════════════════════════════════════════════════════ */
+/* ── TABLES ──────────────────────────────────────────────────────── */
 .tw{background:var(--card);border:1px solid var(--bd);border-radius:9px;overflow:hidden;box-shadow:var(--sh);margin-bottom:20px}
 .th{background:var(--surf);border-bottom:1px solid var(--bd);padding:11px 18px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--tx)}
 .th .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
@@ -131,27 +136,45 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
 .c-rd{color:var(--red)!important;font-weight:700}
 .c-am{color:var(--amb)!important;font-weight:700}
 .c-in{color:var(--ind)!important;font-weight:700}
-.row-sep td{background:#e8f0fe!important;font-size:10px!important;font-weight:700!important;color:var(--blue)!important;text-transform:uppercase;letter-spacing:.5px;padding:6px 14px!important}
-.row-sep2 td{background:#e8e7ff!important;font-size:10px!important;font-weight:700!important;color:var(--ind)!important;text-transform:uppercase;letter-spacing:.5px;padding:6px 14px!important}
 .row-tot{background:linear-gradient(90deg,#e8f0fe,#f0f9f4)!important;border-top:2px solid var(--blue)!important}
 .row-tot td{font-weight:700!important;font-size:12px!important;color:var(--tx)!important}
 .dot2{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
 
-/* ══ DAILY SUM ROW ═══════════════════════════════════════════════════ */
-.sum-section{background:var(--card);border:1px solid var(--bd);border-radius:9px;overflow:hidden;box-shadow:var(--sh);margin-bottom:20px}
-.sum-hd{background:linear-gradient(90deg,var(--ind),#4f46e5);padding:12px 18px;display:flex;align-items:center;gap:10px}
-.sum-hd span{font-size:13px;font-weight:700;color:#fff}
-.sum-hd small{font-size:11px;color:rgba(255,255,255,.7)}
-.sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));padding:14px;gap:10px}
-.sum-item{padding:10px 14px;border-radius:7px;border:1px solid var(--bd)}
-.sum-item .s-lbl{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
-.sum-item .s-val{font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--tx)}
-.sum-item .s-unit{font-size:10px;color:var(--tx3);font-weight:600;margin-top:1px}
+/* ── AUDIT LOG ───────────────────────────────────────────────────── */
+.log-panel{background:var(--card);border:1px solid var(--bd);border-radius:9px;overflow:hidden;box-shadow:var(--sh);margin-bottom:20px}
+.log-hd{background:var(--navy2);padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;color:rgba(255,255,255,.9)}
+.log-body{max-height:180px;overflow-y:auto;padding:8px 0}
+.log-row{display:flex;align-items:center;gap:10px;padding:6px 16px;border-bottom:1px solid var(--bg);font-size:11px}
+.log-row:last-child{border-bottom:none}
+.log-ts{color:var(--tx3);font-family:'IBM Plex Mono',monospace;min-width:120px;font-size:10px}
+.log-msg{color:var(--tx2)}
+.log-tag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px}
 
-.footer{text-align:center;padding:14px 24px;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);background:var(--card)}
+/* ── PRINT / PDF ─────────────────────────────────────────────────── */
+@media print{
+  .hdr,.toolbar,.alert-bar,.datebar,.no-print{display:none!important}
+  .panel{display:block!important}
+  body{background:#fff;font-size:11px}
+  .page{padding:10px}
+  .kcard,.cc,.tw{box-shadow:none;border:1px solid #ccc}
+  .cbody{height:100px}
+  .hdr-btn,.htab,.arr,.db-sel,.btn-tpl,.upzone,.fstatus,.info-note{display:none!important}
+  .print-hdr{display:block!important}
+}
+.print-hdr{display:none;text-align:center;padding:16px 0 8px;border-bottom:2px solid var(--navy);margin-bottom:16px}
+.print-hdr h1{font-size:18px;font-weight:800;color:var(--navy)}
+.print-hdr p{font-size:12px;color:var(--tx3);margin-top:4px}
+
+.footer{text-align:center;padding:12px 24px;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);background:var(--card)}
 </style>
 </head>
 <body>
+
+<!-- PRINT HEADER (visible only when printing) -->
+<div class="print-hdr">
+  <h1>รายงานคุณภาพ — แผนกหม้อต้ม</h1>
+  <p id="printMeta">BOILING STATION QUALITY REPORT</p>
+</div>
 
 <!-- HEADER -->
 <header class="hdr">
@@ -166,9 +189,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
     <button class="htab on" data-v="daily">ผลรายวัน</button>
     <button class="htab" data-v="cum">ข้อมูลสะสม</button>
     <button class="htab" data-v="weekly">รายสัปดาห์</button>
+    <button class="htab" data-v="log">บันทึกการนำเข้า</button>
   </nav>
   <div class="hdr-right">
     <div class="hdr-badge"><span class="blink"></span><span id="liveText">ข้อมูลในไฟล์</span></div>
+    <button class="hdr-btn btn-pdf" onclick="doPDF()">🖨 PDF</button>
+    <button class="hdr-btn btn-save" onclick="saveHTML()">💾 บันทึกไฟล์</button>
+    <button class="hdr-btn btn-xlsx" onclick="exportXLSX()">📊 Excel</button>
   </div>
 </header>
 
@@ -178,8 +205,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
     <input type="file" id="fileIn" accept=".csv,.xlsx,.xls">
     <span style="font-size:20px;flex-shrink:0">📂</span>
     <div class="up-label">
-      <strong>นำเข้าไฟล์ข้อมูลใหม่</strong>
-      <span>CSV · Excel — คลิกหรือลากไฟล์มาวาง (ข้อมูลจะฝังในไฟล์นี้)</span>
+      <strong>นำเข้าไฟล์ข้อมูล (อัปโหลดได้ตลอดเวลา)</strong>
+      <span>CSV · Excel — คลิกหรือลากไฟล์มาวาง · ข้อมูลจะฝังในไฟล์นี้</span>
     </div>
   </label>
   <div class="fstatus">
@@ -187,10 +214,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
     <span id="stext" style="color:var(--grn);font-weight:600">ข้อมูล 7 วัน (01/02/69 – 07/02/69) พร้อมใช้งาน</span>
   </div>
   <div class="info-note">
-    <strong>แชร์ไฟล์นี้ได้เลย</strong>
-    ข้อมูลฝังอยู่ในไฟล์ HTML — ส่งไฟล์ให้ผู้อื่นเปิดด้วย Browser ได้ทันที ไม่ต้องกรอกข้อมูลใหม่
+    <strong>แชร์ไฟล์ได้ทันที</strong>
+    กด "บันทึกไฟล์" เพื่อดาวน์โหลด HTML ที่มีข้อมูลฝังอยู่ — ส่งให้ผู้อื่นเปิดด้วย Browser ได้เลย
   </div>
-  <button class="btn-dl" onclick="dlTemplate()">⬇ Template CSV</button>
+  <button class="btn-tpl" onclick="dlTemplate()">⬇ Template CSV</button>
+</div>
+
+<!-- ALERT BANNER -->
+<div class="alert-bar" id="alertBar">
+  <span style="font-weight:800;margin-right:4px">⚠ แจ้งเตือน:</span>
+  <div id="alertItems" style="display:flex;gap:8px;flex-wrap:wrap"></div>
 </div>
 
 <!-- DATE BAR -->
@@ -202,6 +235,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
     <button class="arr" id="btnNext">›</button>
   </div>
   <span class="db-info" id="dbInfo"></span>
+  <span class="db-ts" id="dbTs"></span>
 </div>
 
 <!-- ══ PANEL: DAILY ══════════════════════════════════════════════════ -->
@@ -211,19 +245,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
       <h2>ผลการดำเนินงานประจำวัน</h2>
       <span class="chip" id="dBadge" style="background:var(--bluel);color:var(--blue)">—</span>
     </div>
-
-    <!-- ส่วนที่ 1: ค่าคุณภาพรายวัน — cards ทุก column -->
-    <div class="sec-sub">ส่วนที่ 1 — ค่าคุณภาพและสะสมรายวัน (ทุก Parameter)</div>
+    <div class="sec-sub">ส่วนที่ 1 — ค่าคุณภาพและปริมาณรายวัน</div>
     <div class="cgrid" id="d1Cards"></div>
-
-    <!-- ส่วนที่ 2: ค่าสะสม (Cumulative) พร้อม charts -->
     <div class="sec-sub" style="color:var(--ind)">ส่วนที่ 2 — ค่าสะสม ณ วันที่เลือก พร้อมแนวโน้ม</div>
     <div class="g3" id="d2Charts"></div>
-
-    <!-- ส่วนที่ 3: ผลรวมทั้ง 7 วัน (ไม่ซ้ำข้อมูล) -->
-    <div class="sec-sub" style="color:var(--grn)">ส่วนที่ 3 — ผลรวม / เปรียบเทียบทั้ง 7 วัน</div>
+    <div class="sec-sub" style="color:var(--grn)">ส่วนที่ 3 — ตารางเปรียบเทียบทุกวัน (ทุก Parameter)</div>
     <div class="tw">
-      <div class="th"><span class="dot" style="background:var(--grn)"></span>ตารางผลรวมทุก Parameter — ครบทุกวัน</div>
+      <div class="th"><span class="dot" style="background:var(--grn)"></span>ตารางผลรวมทุก Parameter ทุกวัน</div>
       <div class="ts"><table class="dt" id="tAll"></table></div>
     </div>
   </div>
@@ -236,9 +264,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
       <h2>ข้อมูลสะสม (Cumulative)</h2>
       <span class="chip" id="cBadge" style="background:var(--indb);color:var(--ind)">—</span>
     </div>
-    <div class="g3" id="gCumCharts"></div>
+    <div class="sec-sub">ค่าคุณภาพรายวัน ณ วันที่เลือก — Progress bar · ผลต่างเทียบเฉลี่ย</div>
+    <div class="cgrid" id="gCumDC"></div>
+    <div class="sec-sub" style="color:var(--ind)">ค่าสะสม (Sum) ณ วันที่เลือก</div>
+    <div class="cgrid" id="gCumCC"></div>
+    <div class="sec-sub" style="color:var(--teal)">กราฟแนวโน้มทุกวัน</div>
+    <div class="g4" id="gCumCharts"></div>
     <div class="tw">
-      <div class="th"><span class="dot" style="background:var(--ind)"></span>ตารางค่าสะสม — ทุกวัน (ค่าสะสม ณ วันที่เลือกไฮไลท์)</div>
+      <div class="th"><span class="dot" style="background:var(--ind)"></span>ตารางข้อมูลสะสมทุกวัน — ทุก Parameter</div>
       <div class="ts"><table class="dt" id="tCum"></table></div>
     </div>
   </div>
@@ -260,41 +293,56 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
   </div>
 </div>
 
+<!-- ══ PANEL: LOG ═════════════════════════════════════════════════════ -->
+<div class="panel" id="pLog">
+  <div class="page">
+    <div class="sec">
+      <h2>บันทึกการนำเข้าข้อมูล</h2>
+      <span class="chip" style="background:var(--surf);color:var(--tx3)">Audit Log</span>
+    </div>
+    <div class="log-panel">
+      <div class="log-hd">📋 ประวัติการนำเข้าไฟล์ทั้งหมด</div>
+      <div class="log-body" id="logBody">
+        <div class="log-row"><span class="log-ts">—</span><span class="log-msg" style="color:var(--tx4)">ยังไม่มีประวัติการนำเข้า</span></div>
+      </div>
+    </div>
+    <!-- Data summary card -->
+    <div class="tw">
+      <div class="th"><span class="dot" style="background:var(--blue)"></span>ข้อมูลที่ฝังในไฟล์ปัจจุบัน</div>
+      <div class="ts"><table class="dt" id="tLogSummary"></table></div>
+    </div>
+  </div>
+</div>
+
 <footer class="footer">
-  รายงานคุณภาพ — แผนกหม้อต้ม &nbsp;|&nbsp; ไฟล์นี้มีข้อมูลฝังอยู่ — ส่งต่อให้ผู้อื่นเปิดด้วย Browser ได้เลย
+  รายงานคุณภาพ — แผนกหม้อต้ม &nbsp;|&nbsp;
+  กด <strong>💾 บันทึกไฟล์</strong> เพื่อส่งต่อ — ผู้รับเปิดด้วย Browser ได้เลย ไม่ต้องกรอกข้อมูลใหม่
 </footer>
 
 <script>
 'use strict';
 
-/* ═══════════════════════════════════════════════════════════════════
-   COLUMN DEFINITIONS  (idx = ตำแหน่งใน CSV, 0=วันที่)
-   ═══════════════════════════════════════════════════════════════════ */
-// Daily quality columns (DC) — ทุกคอลัมน์ที่มีข้อมูล
+/* ═══ COLUMN DEFINITIONS ═══════════════════════════════════════════ */
 const DC = [
-  {k:'ph1',     lbl:'pH Liming Juice',         unit:'pH',    idx:1,  col:'#1155cc',bg:'#e8f0fe',min:6.5,max:8.5},
-  {k:'ph2',     lbl:'pH Clarified Juice',       unit:'pH',    idx:2,  col:'#0d6b3c',bg:'#d4f0e4',min:6.5,max:8.5},
-  {k:'clarity', lbl:'% Juice Clarity',          unit:'%',     idx:3,  col:'#0e6b6b',bg:'#d0f0f0',min:70, max:100},
-  {k:'brix',    lbl:'Brix Raw Syrup',           unit:'°Brix', idx:4,  col:'#8b4000',bg:'#fef0d0',min:50, max:80},
-  {k:'pol',     lbl:'Pol Filter Cake',          unit:'%',     idx:5,  col:'#6b21a8',bg:'#f3e8ff',min:0,  max:5},
-  {k:'moisture',lbl:'Moisture Filter Cake',     unit:'%',     idx:6,  col:'#3730a3',bg:'#e8e7ff',min:50, max:110},
-  {k:'weight',  lbl:'Weight Filter Cake',       unit:'Tons',  idx:7,  col:'#9b1c1c',bg:'#fde8e8',min:0,  max:800},
-  {k:'lime',    lbl:'Lime',                     unit:'kg/ton',idx:9,  col:'#8b4000',bg:'#fef0d0',min:0,  max:15000},
-  {k:'floc',    lbl:'Flocculant Clarity',       unit:'ppm',   idx:11, col:'#0e6b6b',bg:'#d0f0f0',min:0,  max:400},
-  {k:'anti',    lbl:'Anti Scale',               unit:'ppm',   idx:14, col:'#1155cc',bg:'#e8f0fe',min:0,  max:300},
+  {k:'ph1',     lbl:'pH Liming Juice',        unit:'pH',    idx:1,  col:'#1155cc',bg:'#e8f0fe',min:6.5,max:8.5, alertLo:6.8,alertHi:7.8},
+  {k:'ph2',     lbl:'pH Clarified Juice',      unit:'pH',    idx:2,  col:'#0d6b3c',bg:'#d4f0e4',min:6.5,max:8.5, alertLo:6.8,alertHi:7.6},
+  {k:'clarity', lbl:'% Juice Clarity',         unit:'%',     idx:3,  col:'#0e6b6b',bg:'#d0f0f0',min:70, max:100, alertLo:80, alertHi:null},
+  {k:'brix',    lbl:'Brix Raw Syrup',          unit:'°Brix', idx:4,  col:'#8b4000',bg:'#fef0d0',min:50, max:80,  alertLo:null,alertHi:null},
+  {k:'pol',     lbl:'Pol Filter Cake',         unit:'%',     idx:5,  col:'#6b21a8',bg:'#f3e8ff',min:0,  max:5,   alertLo:null,alertHi:3},
+  {k:'moisture',lbl:'Moisture Filter Cake',    unit:'%',     idx:6,  col:'#3730a3',bg:'#e8e7ff',min:50, max:110, alertLo:null,alertHi:null},
+  {k:'weight',  lbl:'Weight Filter Cake',      unit:'Tons',  idx:7,  col:'#9b1c1c',bg:'#fde8e8',min:0,  max:800, alertLo:null,alertHi:null},
+  {k:'lime',    lbl:'Lime',                    unit:'kg/ton',idx:9,  col:'#8b4000',bg:'#fef0d0',min:0,  max:15000,alertLo:null,alertHi:null},
+  {k:'floc',    lbl:'Flocculant Clarity',      unit:'ppm',   idx:11, col:'#0e6b6b',bg:'#d0f0f0',min:0,  max:400, alertLo:null,alertHi:null},
+  {k:'anti',    lbl:'Anti Scale',              unit:'ppm',   idx:14, col:'#1155cc',bg:'#e8f0fe',min:0,  max:300, alertLo:null,alertHi:null},
 ];
-// Cumulative/sum columns (CC)
 const CC = [
   {k:'sumlime', lbl:'Sum Lime',                unit:'kg/ton',idx:10, col:'#9b1c1c',bg:'#fde8e8'},
-  {k:'sumfloc', lbl:'Sum Flocculant Clarity',  unit:'ppm',   idx:12, col:'#3730a3',bg:'#e8e7ff'},
+  {k:'sumfloc', lbl:'Sum Flocculant',          unit:'ppm',   idx:12, col:'#3730a3',bg:'#e8e7ff'},
   {k:'sumanti', lbl:'Sum Anti Scale',          unit:'ppm',   idx:15, col:'#0d6b3c',bg:'#d4f0e4'},
 ];
-// All 13 columns in order for the full table
-const ALL_COLS = [...DC, ...CC];
+const IS_AVG = k => ['ph1','ph2','clarity','brix','pol','moisture'].includes(k);
 
-/* ═══════════════════════════════════════════════════════════════════
-   EMBEDDED DATA — ข้อมูลจากไฟล์ CSV (ฝังตรงนี้)
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══ EMBEDDED DATA ════════════════════════════════════════════════ */
 let DATA = [
   ['01/02/69','7.42','7.18','89.89','68.85','1.39','68.58','514.85','','6602','296878','250','10630','','97','6214'],
   ['02/02/69','7.65','7.20','90.59','65.99','1.51','69.06','522.73','','8093','304971','250','10880','','80','6294'],
@@ -305,118 +353,75 @@ let DATA = [
   ['07/02/69','7.67','7.13','91.36','67.16','1.39','70.27','482.97','','8545','340394','230','12040','','140','6915'],
 ];
 let SEL = DATA.length - 1;
+let AUDIT_LOG = [];
+let LAST_UPDATED = 'ข้อมูลเริ่มต้น (ฝังในไฟล์)';
 
-/* ═══════════════════════════════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════════════════════════════ */
-const rows  = () => DATA.filter(r => r[0] && String(r[0]).trim());
-const labels= () => rows().map(r => r[0]);
+/* ═══ HELPERS ═══════════════════════════════════════════════════════ */
+const rows   = () => DATA.filter(r => r[0] && String(r[0]).trim());
+const labels = () => rows().map(r => r[0]);
+const gv     = (rs,col) => rs.map(r=>{const v=parseFloat(r[col.idx]);return isNaN(v)?null:v;}).filter(v=>v!==null);
+const sumArr = arr => arr.reduce((a,b)=>a+b,0);
+const avgArr = arr => arr.length ? sumArr(arr)/arr.length : null;
+const fmtN   = (v,d=2) => v==null||isNaN(v) ? '—' : Number(v).toLocaleString('th-TH',{maximumFractionDigits:d,minimumFractionDigits:d});
+const fmtR   = raw => { if(raw===''||raw==null) return '—'; const n=parseFloat(raw); return isNaN(n)?String(raw):n.toLocaleString('th-TH',{maximumFractionDigits:2}); };
+const nowStr = () => { const d=new Date(); return `${d.toLocaleDateString('th-TH')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const groupWeeks = rs => { const o=[]; for(let i=0;i<rs.length;i+=7){const c=rs.slice(i,i+7);o.push({lbl:c[0][0]+(c.length>1?' – '+c[c.length-1][0]:''),rows:c});} return o; };
 
-function gv(rs, col) {
-  return rs.map(r => { const v = parseFloat(r[col.idx]); return isNaN(v) ? null : v; }).filter(v => v !== null);
-}
-function sum(arr) { return arr.reduce((a,b)=>a+b, 0); }
-function fmtN(v, d=2) {
-  if (v == null || isNaN(v)) return '—';
-  return Number(v).toLocaleString('th-TH', {maximumFractionDigits:d, minimumFractionDigits:d});
-}
-function fmtR(raw) {
-  if (raw === '' || raw == null) return '—';
-  const n = parseFloat(raw);
-  return isNaN(n) ? String(raw) : n.toLocaleString('th-TH', {maximumFractionDigits:2});
-}
-function groupWeeks(rs) {
-  const out=[];
-  for(let i=0;i<rs.length;i+=7){
-    const c=rs.slice(i,i+7);
-    out.push({lbl: c[0][0]+(c.length>1?' – '+c[c.length-1][0]:''), rows:c});
+/* ═══ ALERTS ════════════════════════════════════════════════════════ */
+function checkAlerts(row) {
+  const alerts = [];
+  DC.forEach(m => {
+    const v = parseFloat(row[m.idx]);
+    if(isNaN(v)) return;
+    if(m.alertLo != null && v < m.alertLo) alerts.push(`${m.lbl} ต่ำเกิน (${v.toFixed(2)} < ${m.alertLo})`);
+    if(m.alertHi != null && v > m.alertHi) alerts.push(`${m.lbl} สูงเกิน (${v.toFixed(2)} > ${m.alertHi})`);
+  });
+  const bar = document.getElementById('alertBar');
+  const items = document.getElementById('alertItems');
+  if(alerts.length) {
+    bar.classList.add('show');
+    items.innerHTML = alerts.map(a=>`<span class="alert-item">⚠ ${a}</span>`).join('');
+  } else {
+    bar.classList.remove('show');
+    items.innerHTML = '';
   }
-  return out;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   CHART FACTORY
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══ CHART FACTORY ═════════════════════════════════════════════════ */
 const CI = {};
-const TT = {
-  backgroundColor:'#fff',borderColor:'#c8d4e4',borderWidth:1,
-  titleColor:'#1e3a5f',bodyColor:'#0a1929',
-  padding:10,cornerRadius:7,
-  titleFont:{weight:'700',size:11},bodyFont:{size:11},
-  callbacks:{label:ctx=>ctx.parsed.y!=null
-    ? ' '+Number(ctx.parsed.y).toLocaleString('th-TH',{maximumFractionDigits:2})
-    : ' —'}
-};
-const SC = {
-  x:{ticks:{color:'#4a6080',font:{size:10},maxRotation:40,autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(200,212,228,.6)'},border:{display:false}},
-  y:{ticks:{color:'#4a6080',font:{size:10}},grid:{color:'rgba(200,212,228,.6)'},border:{display:false}},
-};
+const TT = { backgroundColor:'#fff',borderColor:'#c8d4e4',borderWidth:1,titleColor:'#1e3a5f',bodyColor:'#0a1929',padding:10,cornerRadius:7,titleFont:{weight:'700',size:11},bodyFont:{size:11},callbacks:{label:ctx=>ctx.parsed.y!=null?' '+Number(ctx.parsed.y).toLocaleString('th-TH',{maximumFractionDigits:2}):'—'} };
+const SC  = { x:{ticks:{color:'#4a6080',font:{size:10},maxRotation:40,autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(200,212,228,.6)'},border:{display:false}},y:{ticks:{color:'#4a6080',font:{size:10}},grid:{color:'rgba(200,212,228,.6)'},border:{display:false}} };
 function kill(id){if(CI[id]){try{CI[id].destroy();}catch(e){}delete CI[id];}}
+function mkLine(id,L,ds,mn,mx){const c=document.getElementById(id);if(!c)return;kill(id);const sc=JSON.parse(JSON.stringify(SC));if(mn!=null)sc.y.min=mn;if(mx!=null)sc.y.max=mx;CI[id]=new Chart(c,{type:'line',data:{labels:L,datasets:ds},options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{display:false},tooltip:TT},scales:sc,elements:{point:{radius:3,hoverRadius:6,borderWidth:2,borderColor:'#fff'}}}});}
+function mkBar(id,L,ds){const c=document.getElementById(id);if(!c)return;kill(id);CI[id]=new Chart(c,{type:'bar',data:{labels:L,datasets:ds},options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{display:true,position:'bottom',labels:{color:'#1e3a5f',font:{size:10},boxWidth:10,padding:7,borderRadius:3}},tooltip:TT},scales:SC}});}
 
-function mkLine(id,L,ds,mn,mx){
-  const c=document.getElementById(id); if(!c)return; kill(id);
-  const sc=JSON.parse(JSON.stringify(SC));
-  if(mn!=null)sc.y.min=mn; if(mx!=null)sc.y.max=mx;
-  CI[id]=new Chart(c,{type:'line',data:{labels:L,datasets:ds},options:{
-    responsive:true,maintainAspectRatio:false,animation:{duration:350},
-    plugins:{legend:{display:false},tooltip:TT},scales:sc,
-    elements:{point:{radius:3,hoverRadius:6,borderWidth:2,borderColor:'#fff'}},
-  }});
-}
-function mkBar(id,L,ds){
-  const c=document.getElementById(id); if(!c)return; kill(id);
-  CI[id]=new Chart(c,{type:'bar',data:{labels:L,datasets:ds},options:{
-    responsive:true,maintainAspectRatio:false,animation:{duration:350},
-    plugins:{
-      legend:{display:true,position:'bottom',labels:{color:'#1e3a5f',font:{size:10},boxWidth:10,padding:7,borderRadius:3}},
-      tooltip:TT
-    },
-    scales:SC,
-  }});
-}
-function mkSpark(id,vals,col){
-  const c=document.getElementById(id); if(!c)return; kill(id);
-  CI[id]=new Chart(c,{type:'line',data:{
-    labels:vals.map((_,i)=>i),
-    datasets:[{data:vals,borderColor:col,backgroundColor:col+'22',fill:true,tension:.4,borderWidth:1.5,pointRadius:0}]
-  },options:{
-    responsive:true,maintainAspectRatio:false,animation:{duration:250},
-    plugins:{legend:{display:false},tooltip:{enabled:false}},
-    scales:{x:{display:false},y:{display:false}},
-  }});
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   DATE PICKER
-   ═══════════════════════════════════════════════════════════════════ */
-function buildPicker() {
-  const rs=rows(), sel=document.getElementById('dateSel');
-  sel.innerHTML = rs.map((r,i)=>`<option value="${i}">${r[0]}</option>`).join('');
-  if(SEL>=rs.length) SEL=rs.length-1;
-  if(SEL<0) SEL=0;
+/* ═══ DATE PICKER ═══════════════════════════════════════════════════ */
+function buildPicker(){
+  const rs=rows(),sel=document.getElementById('dateSel');
+  sel.innerHTML=rs.map((r,i)=>`<option value="${i}">${r[0]}</option>`).join('');
+  if(SEL>=rs.length)SEL=rs.length-1;
+  if(SEL<0)SEL=0;
   sel.value=SEL;
-  document.getElementById('dbInfo').textContent =
-    rs.length ? `${rs.length} วัน (${rs[0][0]} – ${rs[rs.length-1][0]})` : '';
+  document.getElementById('dbInfo').textContent=rs.length?`${rs.length} วัน (${rs[0][0]} – ${rs[rs.length-1][0]})`:'';
+  document.getElementById('dbTs').textContent=`อัปเดตล่าสุด: ${LAST_UPDATED}`;
 }
-document.getElementById('dateSel').addEventListener('change', e=>{SEL=+e.target.value;refresh();});
-document.getElementById('btnPrev').addEventListener('click', ()=>{if(SEL>0){SEL--;document.getElementById('dateSel').value=SEL;refresh();}});
-document.getElementById('btnNext').addEventListener('click', ()=>{const m=rows().length-1;if(SEL<m){SEL++;document.getElementById('dateSel').value=SEL;refresh();}});
+document.getElementById('dateSel').addEventListener('change',e=>{SEL=+e.target.value;refresh();});
+document.getElementById('btnPrev').addEventListener('click',()=>{if(SEL>0){SEL--;document.getElementById('dateSel').value=SEL;refresh();}});
+document.getElementById('btnNext').addEventListener('click',()=>{const m=rows().length-1;if(SEL<m){SEL++;document.getElementById('dateSel').value=SEL;refresh();}});
 
-/* ═══════════════════════════════════════════════════════════════════
-   DAILY VIEW
-   ═══════════════════════════════════════════════════════════════════ */
-function renderDaily() {
-  const rs=rows(), L=labels(), row=rs[SEL]||rs[rs.length-1]||[];
-  document.getElementById('dBadge').textContent = `วันที่ ${row[0]||'—'}`;
+/* ═══ DAILY VIEW ════════════════════════════════════════════════════ */
+function renderDaily(){
+  const rs=rows(),L=labels(),row=rs[SEL]||rs[rs.length-1]||[];
+  document.getElementById('dBadge').textContent=`วันที่ ${row[0]||'—'}`;
+  checkAlerts(row);
 
-  /* ── ส่วนที่ 1: cards ทุก column (DC + CC) ── */
-  const allCols=[...DC,...CC];
-  document.getElementById('d1Cards').innerHTML = allCols.map(m=>{
-    const v=parseFloat(row[m.idx]);
-    const arr=gv(rs,m);
-    const pct=(m.min!=null&&!isNaN(v)&&arr.length)
-      ? Math.min(100,Math.max(0,((v-m.min)/(m.max||v+1-m.min))*100)) : null;
+  /* ส่วนที่ 1: DC + CC cards */
+  document.getElementById('d1Cards').innerHTML=[...DC,...CC].map(m=>{
+    const v=parseFloat(row[m.idx]),arr=gv(rs,m);
+    const pct=(m.min!=null&&!isNaN(v))?Math.min(100,Math.max(0,((v-m.min)/(m.max-m.min))*100)):null;
+    const isAlert=m.alertLo!=null&&v<m.alertLo||m.alertHi!=null&&v>m.alertHi;
     return `<div class="kcard">
+      ${isAlert?'<div class="kcard-alert"></div>':''}
       <div class="kcard-top" style="background:${m.col}"></div>
       <div class="kcard-lbl">${m.lbl}</div>
       <div class="kcard-val" style="color:${m.col}">${isNaN(v)?'—':fmtN(v,2)}</div>
@@ -425,207 +430,163 @@ function renderDaily() {
     </div>`;
   }).join('');
 
-  /* ── ส่วนที่ 2: CC trend charts ── */
-  document.getElementById('d2Charts').innerHTML = CC.map(m=>{
-    const arr=gv(rs,m);
-    const last=row[m.idx]&&row[m.idx]!==''?fmtR(row[m.idx]):'—';
-    return `<div class="cc">
-      <div class="cc-hd">
-        <div class="cc-nm">${m.lbl}</div>
-        <span class="cc-ch" style="background:${m.bg};color:${m.col}">ณ วันที่เลือก: ${last}</span>
-      </div>
-      <div class="cc-sub">${m.unit} — แนวโน้มสะสมทุกวัน</div>
-      <div class="cbody"><canvas id="d2c_${m.k}"></canvas></div>
-    </div>`;
-  }).join('');
+  /* ส่วนที่ 2: CC trend charts */
+  document.getElementById('d2Charts').innerHTML=CC.map(m=>`<div class="cc">
+    <div class="cc-hd">
+      <div class="cc-nm">${m.lbl}</div>
+      <span class="cc-ch" style="background:${m.bg};color:${m.col}">${fmtR(row[m.idx])} ${m.unit}</span>
+    </div>
+    <div class="cc-sub">แนวโน้มสะสมทุกวัน</div>
+    <div class="cbody"><canvas id="d2c_${m.k}"></canvas></div>
+  </div>`).join('');
   setTimeout(()=>{
     CC.forEach(m=>{
       const vs=rs.map(r=>{const v=parseFloat(r[m.idx]);return isNaN(v)?null:v;});
-      const pClr=vs.map((_,i)=>i===SEL?'#fff':m.col);
-      const pBdr=vs.map((_,i)=>i===SEL?m.col:'#fff');
-      const pSz =vs.map((_,i)=>i===SEL?7:3);
-      mkLine(`d2c_${m.k}`,L,[{
-        data:vs,borderColor:m.col,backgroundColor:m.bg+'99',fill:true,tension:.35,borderWidth:2,
-        pointBackgroundColor:pClr,pointBorderColor:pBdr,pointRadius:pSz,pointBorderWidth:vs.map((_,i)=>i===SEL?2.5:1.5),
-      }]);
+      const pClr=vs.map((_,i)=>i===SEL?'#fff':m.col),pBdr=vs.map((_,i)=>i===SEL?m.col:'#fff'),pSz=vs.map((_,i)=>i===SEL?7:3);
+      mkLine(`d2c_${m.k}`,L,[{data:vs,borderColor:m.col,backgroundColor:m.bg+'99',fill:true,tension:.35,borderWidth:2,pointBackgroundColor:pClr,pointBorderColor:pBdr,pointRadius:pSz,pointBorderWidth:vs.map((_,i)=>i===SEL?2.5:1.5)}]);
     });
   },0);
 
-  /* ── ส่วนที่ 3: ตารางผลรวมทุกวัน ทุก column ── */
-  // Header: วันที่ + DC + CC
-  let h=`<thead><tr>
-    <th>วันที่</th>
-    ${DC.map(m=>`<th class="r" style="color:${m.col}">${m.lbl}<br><span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx4)">${m.unit}</span></th>`).join('')}
-    ${CC.map(m=>`<th class="r" style="color:${m.col}">${m.lbl}<br><span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx4)">${m.unit}</span></th>`).join('')}
-  </tr></thead><tbody>`;
-
+  /* ส่วนที่ 3: full table */
+  const allCols=[...DC,...CC];
+  let h=`<thead><tr><th>วันที่</th>${allCols.map(m=>`<th class="r" style="color:${m.col}">${m.lbl}<br><span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx4)">${m.unit}</span></th>`).join('')}</tr></thead><tbody>`;
   rs.forEach((r,i)=>{
     const isSel=i===SEL;
-    h+=`<tr style="${isSel?'background:#e8f0fe;':''}">`
-    h+=`<td class="c-bl ${isSel?'fw':''}">${r[0]}${isSel?' ◀':''}</td>`;
-    DC.forEach(m=>{
-      const v=parseFloat(r[m.idx]);
-      h+=`<td class="r ${isSel?'fw':''}" style="${isSel?'color:'+m.col:''}">${isNaN(v)?'—':fmtN(v,2)}</td>`;
-    });
-    CC.forEach(m=>{
-      h+=`<td class="r c-in ${isSel?'fw':''}">${fmtR(r[m.idx])}</td>`;
-    });
+    h+=`<tr style="${isSel?'background:#e8f0fe;':''}"><td class="c-bl ${isSel?'fw':''}">${r[0]}${isSel?' ◀':''}</td>`;
+    DC.forEach(m=>{const v=parseFloat(r[m.idx]);const bad=m.alertLo!=null&&v<m.alertLo||m.alertHi!=null&&v>m.alertHi;h+=`<td class="r ${isSel?'fw':''}" style="color:${bad?'var(--red)':m.col}">${isNaN(v)?'—':fmtN(v,2)}</td>`;});
+    CC.forEach(m=>{h+=`<td class="r c-in ${isSel?'fw':''}">${fmtR(r[m.idx])}</td>`;});
     h+='</tr>';
   });
-
-  // Row รวม 7 วัน
-  h+=`<tr class="row-tot">
-    <td class="fw" style="color:var(--blue)">รวม / เฉลี่ย</td>`;
-  DC.forEach(m=>{
-    const arr=gv(rs,m), isAvg=['ph1','ph2','clarity','brix','pol','moisture'].includes(m.k);
-    const val=isAvg
-      ? (arr.length?fmtN(arr.reduce((a,b)=>a+b,0)/arr.length,2):'—')
-      : fmtN(sum(arr),2);
-    const lbl=isAvg?'เฉลี่ย':'รวม';
-    h+=`<td class="r fw" style="color:${m.col}">${val}<br><span style="font-size:9px;font-weight:400;color:var(--tx4)">${lbl}</span></td>`;
-  });
-  CC.forEach(m=>{
-    const arr=gv(rs,m);
-    const last=arr.length?fmtN(arr[arr.length-1],2):'—';
-    h+=`<td class="r fw c-in">${last}<br><span style="font-size:9px;font-weight:400;color:var(--tx4)">ล่าสุด</span></td>`;
-  });
+  // summary row
+  h+=`<tr class="row-tot"><td class="fw" style="color:var(--blue)">เฉลี่ย / รวม</td>`;
+  DC.forEach(m=>{const arr=gv(rs,m);const val=IS_AVG(m.k)?fmtN(avgArr(arr),2):fmtN(sumArr(arr),2);h+=`<td class="r fw" style="color:${m.col}">${arr.length?val:'—'}</td>`;});
+  CC.forEach(m=>{const arr=gv(rs,m);h+=`<td class="r fw c-in">${arr.length?fmtN(arr[arr.length-1],2):'—'}</td>`;});
   h+='</tr>';
   document.getElementById('tAll').innerHTML=h+'</tbody>';
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   CUMULATIVE VIEW
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══ CUMULATIVE VIEW ═══════════════════════════════════════════════ */
 function renderCum(){
   const rs=rows(),L=labels(),row=rs[SEL]||rs[rs.length-1]||[];
   document.getElementById('cBadge').textContent=`ณ วันที่ ${row[0]||'—'}`;
 
-  document.getElementById('gCumCharts').innerHTML=CC.map(m=>{
-    const arr=gv(rs,m),last=fmtR(row[m.idx]);
-    return `<div class="cc">
-      <div class="cc-hd">
-        <div class="cc-nm">${m.lbl}</div>
-        <span class="cc-ch" style="background:${m.bg};color:${m.col}">ล่าสุด ${last} ${m.unit}</span>
+  /* DC cards with progress + diff */
+  document.getElementById('gCumDC').innerHTML=DC.filter(m=>!['lime','floc','anti'].includes(m.k)).map(m=>{
+    const v=parseFloat(row[m.idx]),arr=gv(rs,m);
+    const a=avgArr(arr),hi=arr.length?Math.max(...arr):null,lo=arr.length?Math.min(...arr):null;
+    const pct=(m.min!=null&&!isNaN(v))?Math.min(100,Math.max(0,((v-m.min)/(m.max-m.min))*100)):null;
+    const diff=(!isNaN(v)&&a!=null)?(v-a):null;
+    const diffTxt=diff==null?null:(diff>=0?'+'+diff.toFixed(2):diff.toFixed(2));
+    const diffCol=diff==null?'var(--tx3)':diff>=0?'var(--blue)':'var(--red)';
+    return `<div class="kcard">
+      <div class="kcard-top" style="background:${m.col}"></div>
+      <div class="kcard-lbl">${m.lbl}</div>
+      <div class="kcard-val" style="color:${m.col}">${isNaN(v)?'—':fmtN(v,2)}</div>
+      <div class="kcard-unit">${m.unit}</div>
+      ${pct!=null?`<div class="kcard-bar"><div class="kcard-fill" style="width:${pct}%;background:${m.col}"></div></div>`:''}
+      <div class="kcard-meta">
+        ${diffTxt?`<span class="kcard-tag" style="background:${diff>=0?'var(--bluel)':'var(--redb)'};color:${diffCol}">${diffTxt}</span>`:''}
+        ${hi!=null?`<span style="font-size:10px;color:var(--red)">↑${hi.toFixed(2)}</span>`:''}
+        ${lo!=null?`<span style="font-size:10px;color:var(--grn)">↓${lo.toFixed(2)}</span>`:''}
       </div>
-      <div class="cbody"><canvas id="gcc_${m.k}"></canvas></div>
     </div>`;
   }).join('');
 
+  /* CC cards */
+  document.getElementById('gCumCC').innerHTML=CC.map(m=>{
+    const v=parseFloat(row[m.idx]);
+    return `<div class="kcard">
+      <div class="kcard-top" style="background:${m.col}"></div>
+      <div class="kcard-lbl">${m.lbl}</div>
+      <div class="kcard-val" style="color:${m.col};font-size:20px">${isNaN(v)?'—':v.toLocaleString('th-TH',{maximumFractionDigits:2})}</div>
+      <div class="kcard-unit">${m.unit}</div>
+    </div>`;
+  }).join('');
+
+  /* Charts */
+  const chartCols=[...CC,...DC.filter(m=>!['lime','floc','anti'].includes(m.k)).slice(0,4)];
+  document.getElementById('gCumCharts').innerHTML=chartCols.map(m=>`<div class="cc">
+    <div class="cc-hd"><div class="cc-nm">${m.lbl}</div><span class="cc-ch" style="background:${m.bg};color:${m.col}">${fmtR(row[m.idx])} ${m.unit}</span></div>
+    <div class="cbody"><canvas id="gcc_${m.k}"></canvas></div>
+  </div>`).join('');
   setTimeout(()=>{
-    CC.forEach(m=>{
+    chartCols.forEach(m=>{
       const vs=rs.map(r=>{const v=parseFloat(r[m.idx]);return isNaN(v)?null:v;});
-      const pClr=vs.map((_,i)=>i===SEL?'#fff':m.col);
-      const pBdr=vs.map((_,i)=>i===SEL?m.col:'#fff');
-      mkLine(`gcc_${m.k}`,L,[{
-        data:vs,borderColor:m.col,backgroundColor:m.bg+'bb',fill:true,tension:.35,borderWidth:2,
-        pointBackgroundColor:pClr,pointBorderColor:pBdr,pointRadius:vs.map((_,i)=>i===SEL?7:3),
-        pointBorderWidth:vs.map((_,i)=>i===SEL?2.5:1.5),
-      }]);
+      const pClr=vs.map((_,i)=>i===SEL?'#fff':m.col),pBdr=vs.map((_,i)=>i===SEL?m.col:'#fff'),pSz=vs.map((_,i)=>i===SEL?7:3);
+      mkLine(`gcc_${m.k}`,L,[{data:vs,borderColor:m.col,backgroundColor:m.bg+'99',fill:true,tension:.35,borderWidth:2,pointBackgroundColor:pClr,pointBorderColor:pBdr,pointRadius:pSz,pointBorderWidth:vs.map((_,i)=>i===SEL?2.5:1.5)}]);
     });
   },0);
 
-  // Table: วันที่ + CC all rows
-  let h=`<thead><tr>
-    <th>วันที่</th>
-    ${CC.map(m=>`<th class="r" style="color:${m.col}">${m.lbl}<br><span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx4)">${m.unit}</span></th>`).join('')}
-  </tr></thead><tbody>`;
+  /* Full table */
+  const allCols=[...DC,...CC];
+  let h=`<thead><tr><th>วันที่</th>${allCols.map(m=>`<th class="r" style="color:${m.col}">${m.lbl}<br><span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx4)">${m.unit}</span></th>`).join('')}</tr></thead><tbody>`;
   rs.forEach((r,i)=>{
     const isSel=i===SEL;
-    h+=`<tr style="${isSel?'background:#e8e7ff;':''}">
-      <td class="c-in ${isSel?'fw':''}">${r[0]}${isSel?' ◀':''}</td>`;
+    h+=`<tr style="${isSel?'background:#e8f0fe;':''}"><td class="c-bl ${isSel?'fw':''}">${r[0]}${isSel?' ◀':''}</td>`;
+    DC.forEach(m=>{const v=parseFloat(r[m.idx]);h+=`<td class="r ${isSel?'fw':''}" style="${isSel?'color:'+m.col:''}">${isNaN(v)?'—':fmtN(v,2)}</td>`;});
     CC.forEach(m=>{h+=`<td class="r c-in ${isSel?'fw':''}">${fmtR(r[m.idx])}</td>`;});
     h+='</tr>';
   });
-  // ล่าสุด row
-  h+=`<tr class="row-tot"><td class="fw c-in">ค่าล่าสุด</td>`;
-  CC.forEach(m=>{
-    const arr=gv(rs,m);
-    h+=`<td class="r fw c-in">${arr.length?fmtN(arr[arr.length-1],2):'—'}</td>`;
-  });
+  h+=`<tr class="row-tot"><td class="fw" style="color:var(--blue)">เฉลี่ย / ล่าสุด</td>`;
+  DC.forEach(m=>{const arr=gv(rs,m);h+=`<td class="r fw" style="color:${m.col}">${arr.length?(IS_AVG(m.k)?fmtN(avgArr(arr),2):fmtN(sumArr(arr),2)):'—'}</td>`;});
+  CC.forEach(m=>{const arr=gv(rs,m);h+=`<td class="r fw c-in">${arr.length?fmtN(arr[arr.length-1],2):'—'}</td>`;});
   h+='</tr>';
   document.getElementById('tCum').innerHTML=h+'</tbody>';
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   WEEKLY VIEW
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══ WEEKLY VIEW ════════════════════════════════════════════════════ */
 function renderWeekly(){
   const rs=rows(),wks=groupWeeks(rs),wL=wks.map(w=>w.lbl);
   document.getElementById('wBadge').textContent=`${wks.length} สัปดาห์`;
-
-  const isAvgType=k=>['ph1','ph2','clarity','brix','pol','moisture'].includes(k);
-
-  // Build bar charts: 4 DC first row, 3 DC + 3 CC second row
-  function buildWGrid(el,cols){
-    el.innerHTML=cols.map(m=>`<div class="cc">
-      <div class="cc-hd">
-        <div class="cc-nm">${m.lbl}</div>
-        <span class="cc-ch" style="background:${m.bg};color:${m.col}">${isAvgType(m.k)?'เฉลี่ย':'รวม'}/สัปดาห์</span>
-      </div>
-      <div class="cbody"><canvas id="cw_${m.k}"></canvas></div>
-    </div>`).join('');
-  }
-  buildWGrid(document.getElementById('gW1'),DC.slice(0,4));
-  buildWGrid(document.getElementById('gW2'),[...DC.slice(4),...CC.slice(0,1)]);
-
+  function bGrid(el,cols){el.innerHTML=cols.map(m=>`<div class="cc"><div class="cc-hd"><div class="cc-nm">${m.lbl}</div><span class="cc-ch" style="background:${m.bg};color:${m.col}">${IS_AVG(m.k)?'เฉลี่ย':'รวม'}/สัปดาห์</span></div><div class="cbody"><canvas id="cw_${m.k}"></canvas></div></div>`).join('');}
+  bGrid(document.getElementById('gW1'),DC.slice(0,4));
+  bGrid(document.getElementById('gW2'),[...DC.slice(4),...CC.slice(0,1)]);
   setTimeout(()=>{
     [...DC,...CC.slice(0,1)].forEach(m=>{
-      const vals=wks.map(w=>{
-        const arr=gv(w.rows,m);
-        return isAvgType(m.k)
-          ? (arr.length?+(arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2):null)
-          : +(arr.reduce((a,b)=>a+b,0)).toFixed(2);
-      });
-      mkBar(`cw_${m.k}`,wL,[{
-        label:m.lbl,data:vals,
-        backgroundColor:m.bg,borderColor:m.col,borderWidth:2,borderRadius:6,
-      }]);
+      const vals=wks.map(w=>{const arr=gv(w.rows,m);return IS_AVG(m.k)?avgArr(arr):sumArr(arr);});
+      mkBar(`cw_${m.k}`,wL,[{label:m.lbl,data:vals,backgroundColor:m.bg,borderColor:m.col,borderWidth:2,borderRadius:6}]);
     });
   },0);
-
-  // Table: all DC + CC per week
   const allCols=[...DC,...CC];
-  let h=`<thead><tr>
-    <th>สัปดาห์</th><th class="r">วัน</th>
-    ${allCols.map(m=>`<th class="r" style="color:${m.col}">${m.lbl}<br>
-      <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx4)">${isAvgType(m.k)?'เฉลี่ย':m.k.startsWith('sum')?'ล่าสุด':'รวม'}</span></th>`).join('')}
-  </tr></thead><tbody>`;
-
+  let h=`<thead><tr><th>สัปดาห์</th><th class="r">วัน</th>${allCols.map(m=>`<th class="r" style="color:${m.col}">${m.lbl}<br><span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx4)">${IS_AVG(m.k)?'เฉลี่ย':m.k.startsWith('sum')?'ล่าสุด':'รวม'}</span></th>`).join('')}</tr></thead><tbody>`;
   wks.forEach(w=>{
     h+=`<tr><td class="c-am fw">${w.lbl}</td><td class="r" style="color:var(--tx3)">${w.rows.length}</td>`;
-    allCols.forEach(m=>{
-      const arr=gv(w.rows,m);
-      let val;
-      if(isAvgType(m.k)) val=arr.length?fmtN(arr.reduce((a,b)=>a+b,0)/arr.length,2):'—';
-      else if(m.k.startsWith('sum')){const la=arr[arr.length-1];val=la!=null?fmtN(la,2):'—';}
-      else val=fmtN(sum(arr),2);
-      h+=`<td class="r fw" style="color:${m.col}">${val}</td>`;
-    });
+    allCols.forEach(m=>{const arr=gv(w.rows,m);let val;if(IS_AVG(m.k))val=fmtN(avgArr(arr),2);else if(m.k.startsWith('sum')){const la=arr[arr.length-1];val=la!=null?fmtN(la,2):'—';}else val=fmtN(sumArr(arr),2);h+=`<td class="r fw" style="color:${m.col}">${arr.length?val:'—'}</td>`;});
     h+='</tr>';
   });
-
-  // รวมทั้งหมด row
   h+=`<tr class="row-tot"><td class="fw" style="color:var(--blue)">รวม / เฉลี่ยรวม</td><td class="r" style="color:var(--tx3)">${rs.length}</td>`;
-  allCols.forEach(m=>{
-    const arr=gv(rs,m);
-    let val;
-    if(isAvgType(m.k)) val=arr.length?fmtN(arr.reduce((a,b)=>a+b,0)/arr.length,2):'—';
-    else if(m.k.startsWith('sum')){const la=arr[arr.length-1];val=la!=null?fmtN(la,2):'—';}
-    else val=fmtN(sum(arr),2);
-    h+=`<td class="r fw" style="color:${m.col}">${val}</td>`;
-  });
+  allCols.forEach(m=>{const arr=gv(rs,m);let val;if(IS_AVG(m.k))val=fmtN(avgArr(arr),2);else if(m.k.startsWith('sum')){const la=arr[arr.length-1];val=la!=null?fmtN(la,2):'—';}else val=fmtN(sumArr(arr),2);h+=`<td class="r fw" style="color:${m.col}">${arr.length?val:'—'}</td>`;});
   h+='</tr>';
   document.getElementById('tWeekly').innerHTML=h+'</tbody>';
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   VIEW SWITCHING
-   ═══════════════════════════════════════════════════════════════════ */
-const PV={daily:'pDaily',cum:'pCum',weekly:'pWeekly'};
-const RD={daily:renderDaily,cum:renderCum,weekly:renderWeekly};
-let cur='daily';
+/* ═══ LOG VIEW ══════════════════════════════════════════════════════ */
+function renderLog(){
+  const lb=document.getElementById('logBody');
+  if(!AUDIT_LOG.length){lb.innerHTML='<div class="log-row"><span class="log-ts">—</span><span class="log-msg" style="color:var(--tx4)">ยังไม่มีประวัติการนำเข้า</span></div>';return;}
+  lb.innerHTML=[...AUDIT_LOG].reverse().map(l=>`
+    <div class="log-row">
+      <span class="log-ts">${l.ts}</span>
+      <span class="log-tag" style="background:${l.ok?'var(--grnb)':'var(--redb)'};color:${l.ok?'var(--grn)':'var(--red)'}">${l.ok?'สำเร็จ':'ล้มเหลว'}</span>
+      <span class="log-msg">${l.msg}</span>
+    </div>`).join('');
+  // Summary table
+  const rs=rows();
+  let h=`<thead><tr><th>รายการ</th><th class="r">ค่า</th></tr></thead><tbody>`;
+  h+=`<tr><td class="fw">จำนวนวัน</td><td class="r fw c-bl">${rs.length} วัน</td></tr>`;
+  h+=`<tr><td>วันแรก</td><td class="r">${rs[0]?rs[0][0]:'—'}</td></tr>`;
+  h+=`<tr><td>วันสุดท้าย</td><td class="r">${rs[rs.length-1]?rs[rs.length-1][0]:'—'}</td></tr>`;
+  h+=`<tr><td>อัปเดตล่าสุด</td><td class="r">${LAST_UPDATED}</td></tr>`;
+  h+=`<tr><td>นำเข้าทั้งหมด</td><td class="r">${AUDIT_LOG.length} ครั้ง</td></tr>`;
+  h+='</tbody>';
+  document.getElementById('tLogSummary').innerHTML=h;
+}
 
-function refresh(){ RD[cur](); }
+/* ═══ VIEW SWITCHING ════════════════════════════════════════════════ */
+const PV={daily:'pDaily',cum:'pCum',weekly:'pWeekly',log:'pLog'};
+const RD={daily:renderDaily,cum:renderCum,weekly:renderWeekly,log:renderLog};
+let cur='daily';
+function refresh(){RD[cur]();}
 
 document.querySelectorAll('.htab').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -639,15 +600,17 @@ document.querySelectorAll('.htab').forEach(btn=>{
   });
 });
 
-/* ═══════════════════════════════════════════════════════════════════
-   FILE UPLOAD — อัปโหลดใหม่ → ฝังข้อมูลใหม่ → render
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══ FILE UPLOAD ═══════════════════════════════════════════════════ */
 function setSt(t,m){
   const d=document.getElementById('sdot'),s=document.getElementById('stext');
   d.className='sd '+(t==='ok'?'ok':t==='err'?'err':'sp');
   s.style.color=t==='ok'?'var(--grn)':t==='err'?'var(--red)':'var(--amb)';
   s.style.fontWeight=t==='ok'?'600':'500';
   s.textContent=m;
+}
+function addLog(ok,msg){
+  AUDIT_LOG.push({ts:nowStr(),ok,msg});
+  if(AUDIT_LOG.length>50) AUDIT_LOG.shift();
 }
 
 const dz=document.getElementById('dropZone'),fi=document.getElementById('fileIn');
@@ -656,41 +619,106 @@ dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)readF(f);});
 fi.addEventListener('change',e=>{const f=e.target.files[0];if(f)readF(f);fi.value='';});
 
+function parseCSVText(text){
+  const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+  if(lines.length<2)return[];
+  const rs=[];
+  for(let i=1;i<lines.length;i++){
+    const cols=lines[i].split(',');
+    if(!cols.some(c=>c.trim()))continue;
+    if(!cols[0]||!cols[0].trim())continue;
+    rs.push(Array.from({length:16},(_,j)=>cols[j]!=null?cols[j].trim():''));
+  }
+  return rs;
+}
+function parseXLSX(buffer){
+  const wb=XLSX.read(new Uint8Array(buffer),{type:'array',raw:true,cellDates:false});
+  const aoa=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:true});
+  if(aoa.length<2)return[];
+  return aoa.slice(1).filter(r=>r.some(c=>c!==''&&c!=null)).filter(r=>r[0]&&String(r[0]).trim()).map(r=>Array.from({length:16},(_,i)=>{
+    const v=r[i];
+    if(v==null||v==='')return'';
+    if(i===0&&typeof v==='number'){const d=new Date((v-25569)*86400000);const dd=String(d.getUTCDate()).padStart(2,'0'),mm=String(d.getUTCMonth()+1).padStart(2,'0'),yy=String(d.getUTCFullYear()).slice(-2);return`${dd}/${mm}/${yy}`;}
+    return String(v);
+  }));
+}
 function readF(file){
   setSt('sp',`กำลังอ่านไฟล์ ${file.name}…`);
-  const isCSV=/\.csv$/i.test(file.name);
-  const reader=new FileReader();
+  const isCSV=/\.csv$/i.test(file.name),reader=new FileReader();
   reader.onload=e=>{
     try{
-      const wb=isCSV
-        ?XLSX.read(e.target.result,{type:'string',raw:false})
-        :XLSX.read(new Uint8Array(e.target.result),{type:'array'});
-      const aoa=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
-      if(aoa.length<2){setSt('err','ไฟล์ว่างหรืออ่านไม่ได้');return;}
-      const rs=aoa.slice(1)
-        .filter(r=>r.some(c=>c!==''&&c!=null))
-        .filter(r=>r[0]&&String(r[0]).trim())
-        .map(r=>Array.from({length:16},(_,i)=>r[i]!=null?String(r[i]):''));
-      if(!rs.length){setSt('err','ไม่พบข้อมูล');return;}
-      DATA=rs; SEL=rs.length-1;
+      const rs=isCSV?parseCSVText(e.target.result):parseXLSX(e.target.result);
+      if(!rs.length){setSt('err','ไม่พบข้อมูลในไฟล์');addLog(false,`${file.name} — ไม่พบข้อมูล`);return;}
+      DATA=rs;SEL=rs.length-1;
+      LAST_UPDATED=nowStr();
+      const msg=`${file.name} — ${rs.length} วัน (${rs[0][0]} – ${rs[rs.length-1][0]})`;
       document.getElementById('liveText').textContent=`${file.name} (${rs.length} วัน)`;
       setSt('ok',`โหลดสำเร็จ ${rs.length} วัน (${rs[0][0]} – ${rs[rs.length-1][0]})`);
-      buildPicker(); refresh();
-    }catch(err){setSt('err',`ข้อผิดพลาด: ${err.message}`);console.error(err);}
+      addLog(true,msg);
+      buildPicker();refresh();
+    }catch(err){setSt('err',`ข้อผิดพลาด: ${err.message}`);addLog(false,`${file.name} — ${err.message}`);console.error(err);}
   };
   if(isCSV)reader.readAsText(file,'UTF-8');
   else reader.readAsArrayBuffer(file);
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   DOWNLOAD TEMPLATE
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══ EXPORT FUNCTIONS ══════════════════════════════════════════════ */
+
+// 1. PDF via print dialog
+function doPDF(){
+  const rs=rows();
+  document.getElementById('printMeta').textContent=
+    `ข้อมูล ${rs.length} วัน (${rs[0]?.[0]||'—'} – ${rs[rs.length-1]?.[0]||'—'}) · พิมพ์: ${nowStr()}`;
+  // make all panels visible for print
+  Object.values(PV).forEach(id=>document.getElementById(id).classList.add('on'));
+  window.print();
+  // restore after print
+  setTimeout(()=>{
+    Object.values(PV).forEach(id=>document.getElementById(id).classList.remove('on'));
+    document.getElementById(PV[cur]).classList.add('on');
+  },1000);
+}
+
+// 2. Save self-contained HTML (with embedded data)
+function saveHTML(){
+  const html=document.documentElement.outerHTML;
+  // inject current DATA into the saved file
+  const escaped=JSON.stringify(DATA).replace(/</g,'\\u003c').replace(/>/g,'\\u003e');
+  const replaced=html.replace(
+    /let DATA = \[[\s\S]*?\];/,
+    `let DATA = ${escaped};`
+  ).replace(
+    /let LAST_UPDATED = [^;]+;/,
+    `let LAST_UPDATED = ${JSON.stringify(nowStr())};`
+  );
+  const blob=new Blob([replaced],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');
+  const rs=rows();
+  const fname=`รายงานหม้อต้ม_${rs[0]?.[0]||''}–${rs[rs.length-1]?.[0]||''}.html`.replace(/\//g,'-');
+  a.href=URL.createObjectURL(blob);
+  a.download=fname;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  addLog(true,`บันทึกไฟล์ HTML: ${fname}`);
+}
+
+// 3. Export Excel
+function exportXLSX(){
+  const rs=rows();
+  const hdr=['วันที่',...DC.map(m=>m.lbl),...CC.map(m=>m.lbl)];
+  const body=rs.map(r=>[r[0],...DC.map(m=>{const v=parseFloat(r[m.idx]);return isNaN(v)?'':v;}),...CC.map(m=>{const v=parseFloat(r[m.idx]);return isNaN(v)?'':v;})]);
+  const ws=XLSX.utils.aoa_to_sheet([hdr,...body]);
+  ws['!cols']=[{wch:12},...hdr.slice(1).map(()=>({wch:14}))];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'ข้อมูลรายวัน');
+  const fname=`รายงานหม้อต้ม_${rs[0]?.[0]||''}–${rs[rs.length-1]?.[0]||''}.xlsx`.replace(/\//g,'-');
+  XLSX.writeFile(wb,fname);
+  addLog(true,`ส่งออก Excel: ${fname}`);
+}
+
+// 4. Download template
 function dlTemplate(){
-  const hdr=['วันที่','pH Liming Juice','pH Clarified Juice','% Juice Clarity','Brix Raw Syrup',
-    'Pol Fiter cake','Moisture in Filter cake','Weigth Fiter cake (Tons)',
-    'Loss in filter cake (ว่าง)','Lime (kg/ton can)','sum Lime (kg/ton can)',
-    'Flocculant Clarity (ppm)','sum Flocculant Clarity (ppm)',
-    'Flocculan Belt Press (ว่าง)','Anti scale (ppm)','sum Anti scale (ppm)'];
+  const hdr=['วันที่','pH Liming Juice','pH Clarified Juice','% Juice Clarity','Brix Raw Syrup','Pol Fiter cake','Moisture in Filter cake','Weigth Fiter cake (Tons)','Loss in filter cake (ว่าง)','Lime (kg/ton can)','sum Lime (kg/ton can)','Flocculant Clarity (ppm)','sum Flocculant Clarity (ppm)','Flocculan Belt Press (ว่าง)','Anti scale (ppm)','sum Anti scale (ppm)'];
   const ws=XLSX.utils.aoa_to_sheet([hdr,...DATA.map(r=>[...r])]);
   ws['!cols']=hdr.map(h=>({wch:Math.max(h.length+2,14)}));
   const wb=XLSX.utils.book_new();
@@ -698,9 +726,7 @@ function dlTemplate(){
   XLSX.writeFile(wb,'template_หม้อต้ม.xlsx');
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══ INIT ══════════════════════════════════════════════════════════ */
 buildPicker();
 renderDaily();
 </script>
