@@ -260,7 +260,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
     <button class="htab"     data-v="log">    🗂 บันทึก</button>
   </nav>
   <div class="hdr-right">
-    <div class="hbadge"><span class="dot-live"></span><span id="liveText">ข้อมูลในไฟล์</span></div>
+    <div class="hbadge"><span class="dot-live" style="background:#f59e0b"></span><span id="liveText">Template — รอนำเข้าข้อมูล</span></div>
     <button class="hbtn hbtn-report" onclick="openReport()">📋 รีพอร์ต</button>
     <button class="hbtn hbtn-save"   onclick="saveHTML()">💾 บันทึกไฟล์</button>
     <button class="hbtn hbtn-xls"    onclick="exportXLS()">📊 Excel</button>
@@ -277,7 +277,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--tx);min-h
       <span class="up-sub">รองรับ CSV · Excel (.xlsx .xls) — คลิกหรือลากไฟล์มาวาง</span>
     </div>
   </label>
-  <div class="fstatus"><span class="sd ok" id="sdot"></span><span id="stext" style="color:var(--grn)">ข้อมูล 7 วัน (01/02/69 – 07/02/69) พร้อมใช้งาน</span></div>
+  <div class="fstatus"><span class="sd" id="sdot"></span><span id="stext" style="color:var(--tx3);font-weight:600">ยังไม่มีข้อมูล — กรุณานำเข้าไฟล์ CSV หรือ Excel</span></div>
   <div class="share-note">
     <strong>💡 แชร์ไฟล์ได้ทันที</strong>
     กด "บันทึกไฟล์" → ได้ไฟล์ HTML ฝังข้อมูลครบ → ส่งให้ผู้อื่นเปิด Browser ดูได้เลย (อ่านอย่างเดียว ไม่แก้ไขได้)
@@ -429,18 +429,10 @@ const IS_AVG = k => ['ph1','ph2','clarity','brix','pol','moisture'].includes(k);
 const IS_SUM = k => k.startsWith('sum');
 
 /* ══ DATA ════════════════════════════════════════════════════════════ */
-let DATA = [
-  ['01/02/69','7.42','7.18','89.89','68.85','1.39','68.58','514.85','','6602','296878','250','10630','','97','6214'],
-  ['02/02/69','7.65','7.20','90.59','65.99','1.51','69.06','522.73','','8093','304971','250','10880','','80','6294'],
-  ['03/02/69','7.54','6.85','90.74','66.82','1.50','68.81','498.84','','7465','311703','240','11120','','108','6402'],
-  ['04/02/69','7.45','7.19','92.98','65.47','1.93','69.19','736.67','','8698','307041','120','11330','','210','6507'],
-  ['05/02/69','7.54','6.99','91.28','68.03','1.62','98.54','527.06','','6132','3239.66','240','11570','','114','6621'],
-  ['06/02/69','7.71','7.09','91.45','68.24','1.58','70.07','418.95','','7883','331849','240','11810','','154','6775'],
-  ['07/02/69','7.67','7.13','91.36','67.16','1.39','70.27','482.97','','8545','340394','230','12040','','140','6915'],
-];
-let SEL = DATA.length - 1;
+let DATA = []; /* TEMPLATE — ยังไม่มีข้อมูล นำเข้าไฟล์ CSV/Excel ก่อนใช้งาน */
+let SEL = 0;
 let AUDIT = [];
-let LAST_UP = 'ข้อมูลเริ่มต้น (ฝังในไฟล์)';
+let LAST_UP = 'ยังไม่ได้นำเข้าข้อมูล';
 let CUM_WK = 0;      // selected week index in cumulative tab
 let RPT_TYPE = 'day';// 'day' | 'week'
 
@@ -494,7 +486,21 @@ function checkAlerts(row){
 
 /* ══ DAILY VIEW ═══════════════════════════════════════════════════════ */
 function renderDaily(){
-  const rs=rows(),L=lbls(),row=rs[SEL]||rs[rs.length-1]||[];
+  const rs=rows(),L=lbls();
+  // Empty-state: ยังไม่มีข้อมูล
+  if(!rs.length){
+    const empty=`<div style="text-align:center;padding:60px 20px;color:var(--tx3)">
+      <div style="font-size:48px;margin-bottom:16px">📂</div>
+      <div style="font-size:18px;font-weight:800;color:var(--tx2);margin-bottom:8px">ยังไม่มีข้อมูล</div>
+      <div style="font-size:13px;line-height:1.8">กรุณานำเข้าไฟล์ข้อมูล CSV หรือ Excel<br>โดยคลิกที่ช่อง <strong>"นำเข้าไฟล์ข้อมูล"</strong> ด้านบน<br>หรือลากไฟล์มาวางได้เลย</div>
+    </div>`;
+    document.getElementById('s1Cards').innerHTML=empty;
+    document.getElementById('s2Charts').innerHTML='';
+    document.getElementById('tDaily').innerHTML='';
+    document.getElementById('dBadge').textContent='ไม่มีข้อมูล';
+    return;
+  }
+  const row=rs[SEL]||rs[rs.length-1]||[];
   document.getElementById('dBadge').textContent=`วันที่ ${row[0]||'—'}`;
   checkAlerts(row);
 
@@ -511,13 +517,15 @@ function renderDaily(){
     </div>`;
   }).join('');
 
-  document.getElementById('s2Charts').innerHTML=CC.map(m=>`<div class="cc">
+  // ส่วน 2: กราฟแนวโน้มรายวัน — Lime, Flocculant Clarity, Anti Scale (DC รายวัน ไม่ใช่ Sum)
+  const S2_COLS = DC.filter(m => ['lime','floc','anti'].includes(m.k));
+  document.getElementById('s2Charts').innerHTML=S2_COLS.map(m=>`<div class="cc">
     <div class="cc-top"><div class="cc-name">${m.lbl}</div>
       <span class="cc-chip" style="background:${m.bg};color:${m.col}">${fR(row[m.idx])} ${m.unit}</span></div>
-    <div class="cc-sub">แนวโน้มสะสมทุกวัน</div>
+    <div class="cc-sub">แนวโน้มรายวัน — จุดเด่นคือวันที่เลือก</div>
     <div class="ch-body"><canvas id="s2_${m.k}"></canvas></div>
   </div>`).join('');
-  setTimeout(()=>{CC.forEach(m=>{const vs=rs.map(r=>{const v=parseFloat(r[m.idx]);return isNaN(v)?null:v;});const pC=vs.map((_,i)=>i===SEL?'#fff':m.col),pB=vs.map((_,i)=>i===SEL?m.col:'#fff'),pS=vs.map((_,i)=>i===SEL?7:4);mkLine(`s2_${m.k}`,L,[{data:vs,borderColor:m.col,backgroundColor:m.bg+'99',fill:true,tension:.35,borderWidth:2,pointBackgroundColor:pC,pointBorderColor:pB,pointRadius:pS,pointBorderWidth:2}]);});},0);
+  setTimeout(()=>{S2_COLS.forEach(m=>{const vs=rs.map(r=>{const v=parseFloat(r[m.idx]);return isNaN(v)?null:v;});const pC=vs.map((_,i)=>i===SEL?'#fff':m.col),pB=vs.map((_,i)=>i===SEL?m.col:'#fff'),pS=vs.map((_,i)=>i===SEL?7:4);mkLine(`s2_${m.k}`,L,[{data:vs,borderColor:m.col,backgroundColor:m.bg+'99',fill:true,tension:.35,borderWidth:2,pointBackgroundColor:pC,pointBorderColor:pB,pointRadius:pS,pointBorderWidth:2}],m.min,m.max);});},0);
 
   buildFullTable('tDaily',rs,SEL);
 }
