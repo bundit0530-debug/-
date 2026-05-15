@@ -1,12 +1,756 @@
-<mxfile host="app.diagrams.net">
-  <diagram name="เธซเธเนเธฒ-1" id="nsoBvLoulDVrz-_nFLpQ">
-    <mxGraphModel dx="1414" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-      </root>
-    </mxGraphModel>
-  </diagram>
-</mxfile>
+const {
+  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+  Header, Footer, AlignmentType, HeadingLevel, BorderStyle, WidthType,
+  ShadingType, VerticalAlign, PageBreak, LevelFormat,
+  TabStopType, TabStopPosition, PageNumberSeparator
+} = require('docx');
+const fs = require('fs');
 
-          
+// Color palette
+const COLORS = {
+  darkGreen: "1B5E20",
+  medGreen: "2E7D32",
+  lightGreen: "4CAF50",
+  paleGreen: "E8F5E9",
+  accentGreen: "C8E6C9",
+  darkGray: "37474F",
+  medGray: "546E7A",
+  lightGray: "ECEFF1",
+  white: "FFFFFF",
+  tableHeader: "2E7D32",
+  tableAlt: "F1F8E9",
+  gold: "F57F17"
+};
+
+const border = { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" };
+const borders = { top: border, bottom: border, left: border, right: border };
+
+const thickBorder = { style: BorderStyle.SINGLE, size: 2, color: COLORS.medGreen };
+const thickBorders = { top: thickBorder, bottom: thickBorder, left: thickBorder, right: thickBorder };
+
+function heading1(text) {
+  return new Paragraph({
+    heading: HeadingLevel.HEADING_1,
+    spacing: { before: 360, after: 200 },
+    border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: COLORS.lightGreen, space: 4 } },
+    children: [new TextRun({ text, bold: true, color: COLORS.darkGreen, size: 36, font: "Arial" })]
+  });
+}
+
+function heading2(text) {
+  return new Paragraph({
+    heading: HeadingLevel.HEADING_2,
+    spacing: { before: 280, after: 140 },
+    children: [new TextRun({ text, bold: true, color: COLORS.medGreen, size: 28, font: "Arial" })]
+  });
+}
+
+function heading3(text) {
+  return new Paragraph({
+    spacing: { before: 200, after: 100 },
+    children: [new TextRun({ text, bold: true, color: COLORS.darkGray, size: 24, font: "Arial" })]
+  });
+}
+
+function para(text, options = {}) {
+  return new Paragraph({
+    spacing: { before: 80, after: 80, line: 320 },
+    alignment: options.justify ? AlignmentType.BOTH : AlignmentType.LEFT,
+    children: [new TextRun({ text, size: 22, font: "Arial", color: COLORS.darkGray, ...options })]
+  });
+}
+
+function boldPara(label, text) {
+  return new Paragraph({
+    spacing: { before: 80, after: 80, line: 300 },
+    alignment: AlignmentType.BOTH,
+    children: [
+      new TextRun({ text: label + ": ", bold: true, size: 22, font: "Arial", color: COLORS.darkGreen }),
+      new TextRun({ text, size: 22, font: "Arial", color: COLORS.darkGray })
+    ]
+  });
+}
+
+function bullet(text) {
+  return new Paragraph({
+    numbering: { reference: "bullets", level: 0 },
+    spacing: { before: 60, after: 60 },
+    children: [new TextRun({ text, size: 22, font: "Arial", color: COLORS.darkGray })]
+  });
+}
+
+function formulaBox(label, formula, description) {
+  return new Table({
+    width: { size: 9026, type: WidthType.DXA },
+    columnWidths: [2800, 3026, 3200],
+    rows: [
+      new TableRow({
+        children: [
+          new TableCell({
+            borders: thickBorders,
+            width: { size: 2800, type: WidthType.DXA },
+            shading: { fill: COLORS.tableHeader, type: ShadingType.CLEAR },
+            margins: { top: 100, bottom: 100, left: 150, right: 150 },
+            verticalAlign: VerticalAlign.CENTER,
+            children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: label, bold: true, color: COLORS.white, size: 22, font: "Arial" })] })]
+          }),
+          new TableCell({
+            borders: thickBorders,
+            width: { size: 3026, type: WidthType.DXA },
+            shading: { fill: "FFF9C4", type: ShadingType.CLEAR },
+            margins: { top: 100, bottom: 100, left: 150, right: 150 },
+            verticalAlign: VerticalAlign.CENTER,
+            children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: formula, bold: true, color: COLORS.gold, size: 22, font: "Courier New" })] })]
+          }),
+          new TableCell({
+            borders: thickBorders,
+            width: { size: 3200, type: WidthType.DXA },
+            shading: { fill: COLORS.paleGreen, type: ShadingType.CLEAR },
+            margins: { top: 100, bottom: 100, left: 150, right: 150 },
+            verticalAlign: VerticalAlign.CENTER,
+            children: [new Paragraph({ children: [new TextRun({ text: description, size: 20, font: "Arial", color: COLORS.darkGray, italics: true })] })]
+          }),
+        ]
+      })
+    ]
+  });
+}
+
+function spacer(size = 120) {
+  return new Paragraph({ spacing: { before: size, after: 0 }, children: [new TextRun("")] });
+}
+
+function makeParamTable(headers, rows, colWidths) {
+  const headerRow = new TableRow({
+    tableHeader: true,
+    children: headers.map((h, i) => new TableCell({
+      borders: thickBorders,
+      width: { size: colWidths[i], type: WidthType.DXA },
+      shading: { fill: COLORS.tableHeader, type: ShadingType.CLEAR },
+      margins: { top: 100, bottom: 100, left: 120, right: 120 },
+      verticalAlign: VerticalAlign.CENTER,
+      children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: h, bold: true, color: COLORS.white, size: 20, font: "Arial" })] })]
+    }))
+  });
+
+  const dataRows = rows.map((row, ri) => new TableRow({
+    children: row.map((cell, ci) => new TableCell({
+      borders,
+      width: { size: colWidths[ci], type: WidthType.DXA },
+      shading: { fill: ri % 2 === 0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR },
+      margins: { top: 80, bottom: 80, left: 120, right: 120 },
+      verticalAlign: VerticalAlign.CENTER,
+      children: [new Paragraph({ alignment: ci === 0 ? AlignmentType.LEFT : AlignmentType.CENTER, children: [new TextRun({ text: cell, size: 20, font: "Arial", color: COLORS.darkGray, bold: ci === 0 })] })]
+    }))
+  }));
+
+  return new Table({
+    width: { size: 9026, type: WidthType.DXA },
+    columnWidths: colWidths,
+    rows: [headerRow, ...dataRows]
+  });
+}
+
+// ==================== BUILD DOCUMENT ====================
+const doc = new Document({
+  numbering: {
+    config: [
+      {
+        reference: "bullets",
+        levels: [{
+          level: 0, format: LevelFormat.BULLET, text: "\u25CF",
+          alignment: AlignmentType.LEFT,
+          style: { paragraph: { indent: { left: 720, hanging: 360 } } }
+        }]
+      },
+      {
+        reference: "bullets2",
+        levels: [{
+          level: 0, format: LevelFormat.BULLET, text: "\u25B6",
+          alignment: AlignmentType.LEFT,
+          style: { paragraph: { indent: { left: 720, hanging: 360 } } }
+        }]
+      }
+    ]
+  },
+  styles: {
+    default: { document: { run: { font: "Arial", size: 22 } } },
+    paragraphStyles: [
+      {
+        id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+        run: { size: 36, bold: true, font: "Arial", color: COLORS.darkGreen },
+        paragraph: { spacing: { before: 360, after: 200 }, outlineLevel: 0 }
+      },
+      {
+        id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
+        run: { size: 28, bold: true, font: "Arial", color: COLORS.medGreen },
+        paragraph: { spacing: { before: 280, after: 140 }, outlineLevel: 1 }
+      },
+    ]
+  },
+  sections: [{
+    properties: {
+      page: {
+        size: { width: 11906, height: 16838 },
+        margin: { top: 1440, right: 1260, bottom: 1440, left: 1260 }
+      }
+    },
+    headers: {
+      default: new Header({
+        children: [
+          new Table({
+            width: { size: 9386, type: WidthType.DXA },
+            columnWidths: [5386, 4000],
+            rows: [new TableRow({
+              children: [
+                new TableCell({
+                  borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.SINGLE, size: 4, color: COLORS.lightGreen }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
+                  width: { size: 5386, type: WidthType.DXA },
+                  margins: { top: 60, bottom: 60, left: 0, right: 0 },
+                  children: [
+                    new Paragraph({ children: [new TextRun({ text: "รายงานทางวิชาการ | Milling House Parameters", bold: true, color: COLORS.darkGreen, size: 20, font: "Arial" })] }),
+                    new Paragraph({ children: [new TextRun({ text: "โรงงานน้ำตาล | Sugar Factory Technical Report", color: COLORS.medGray, size: 18, font: "Arial" })] })
+                  ]
+                }),
+                new TableCell({
+                  borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.SINGLE, size: 4, color: COLORS.lightGreen }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
+                  width: { size: 4000, type: WidthType.DXA },
+                  margins: { top: 60, bottom: 60, left: 0, right: 0 },
+                  children: [new Paragraph({
+                    alignment: AlignmentType.RIGHT,
+                    children: [new TextRun({ text: "ปีการผลิต 2567-2568 | Season 2024-2025", color: COLORS.medGray, size: 18, font: "Arial" })]
+                  })]
+                })
+              ]
+            })]
+          })
+        ]
+      })
+    },
+    footers: {
+      default: new Footer({
+        children: [
+          new Paragraph({
+            border: { top: { style: BorderStyle.SINGLE, size: 4, color: COLORS.lightGreen, space: 4 } },
+            spacing: { before: 60 },
+            tabStops: [{ type: TabStopType.RIGHT, position: 9026 }],
+            children: [
+              new TextRun({ text: "CONFIDENTIAL - For Management Use Only", color: COLORS.medGray, size: 18, font: "Arial" }),
+              new TextRun({ text: "\t", size: 18 }),
+              new TextRun({ text: "หน้า ", color: COLORS.medGray, size: 18, font: "Arial" }),
+              new PageNumber({ size: 18, color: COLORS.medGreen }),
+            ]
+          })
+        ]
+      })
+    },
+    children: [
+
+      // ==================== COVER PAGE ====================
+      spacer(600),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 0, after: 0 },
+        children: [new TextRun({ text: "MILLING HOUSE PARAMETERS", bold: true, color: COLORS.darkGreen, size: 64, font: "Arial" })]
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 60, after: 0 },
+        border: { bottom: { style: BorderStyle.SINGLE, size: 12, color: COLORS.lightGreen, space: 8 } },
+        children: [new TextRun({ text: "พารามิเตอร์หอผลิตในโรงงานน้ำตาล", bold: true, color: COLORS.medGreen, size: 40, font: "Arial" })]
+      }),
+      spacer(200),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: "รายงานวิชาการและเทคนิคการผลิต", color: COLORS.medGray, size: 28, font: "Arial", italics: true })]
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: "Technical & Scientific Reference Report", color: COLORS.medGray, size: 24, font: "Arial", italics: true })]
+      }),
+      spacer(400),
+
+      // Summary box
+      new Table({
+        width: { size: 7000, type: WidthType.DXA },
+        columnWidths: [7000],
+        rows: [new TableRow({
+          children: [new TableCell({
+            borders: thickBorders,
+            width: { size: 7000, type: WidthType.DXA },
+            shading: { fill: COLORS.paleGreen, type: ShadingType.CLEAR },
+            margins: { top: 200, bottom: 200, left: 300, right: 300 },
+            children: [
+              new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 60, after: 80 }, children: [new TextRun({ text: "สรุปภาพรวม | Executive Summary", bold: true, color: COLORS.darkGreen, size: 28, font: "Arial" })] }),
+              new Paragraph({ alignment: AlignmentType.BOTH, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "รายงานนี้ครอบคลุมพารามิเตอร์สำคัญทั้งหมด 13 รายการของหอบีบอ้อย (Milling House) ในโรงงานน้ำตาล ได้แก่ ที่มา ความสำคัญ สูตรคำนวณมาตรฐานสากล เกณฑ์อ้างอิง และการนำไปประยุกต์ใช้ในการควบคุมประสิทธิภาพการผลิต เพื่อให้ผู้บริหารใช้ในการตัดสินใจเชิงกลยุทธ์", size: 22, font: "Arial", color: COLORS.darkGray })] }),
+              new Paragraph({ alignment: AlignmentType.BOTH, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "This report covers all 13 key parameters of the Sugar Factory Milling House, including origins, significance, international standard formulas, reference benchmarks, and operational applications for strategic management decision-making.", size: 22, font: "Arial", color: COLORS.darkGray, italics: true })] }),
+            ]
+          })]
+        })]
+      }),
+      spacer(400),
+      new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "จัดทำโดย: ฝ่ายเทคนิคและวิจัย | Prepared by: Technical & Research Division", color: COLORS.medGray, size: 20, font: "Arial" })] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "วันที่จัดทำ: พฤษภาคม 2568 | Date: May 2025", color: COLORS.medGray, size: 20, font: "Arial" })] }),
+
+      // PAGE BREAK
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 1: Introduction ====================
+      heading1("1. บทนำ | Introduction"),
+      para("อุตสาหกรรมน้ำตาลเป็นหนึ่งในอุตสาหกรรมเกษตรแปรรูปที่สำคัญที่สุดของประเทศไทยและของโลก การควบคุมประสิทธิภาพการผลิตในหอบีบอ้อย (Milling House) ถือเป็นหัวใจสำคัญของกระบวนการผลิตน้ำตาลทั้งหมด เนื่องจากเป็นขั้นตอนแรกที่มีผลต่อปริมาณน้ำตาลที่จะสกัดได้จากอ้อยแต่ละตัน", true),
+      spacer(60),
+      para("ตัวชี้วัดหรือพารามิเตอร์ต่างๆ ที่ใช้ในหอบีบอ้อยได้รับการพัฒนาและกำหนดมาตรฐานโดยองค์กรระหว่างประเทศด้านน้ำตาล เช่น ISSCT (International Society of Sugar Cane Technologists) ซึ่งเป็นที่ยอมรับและใช้งานในโรงงานน้ำตาลทั่วโลก รวมถึงประเทศบราซิล ออสเตรเลีย อินเดีย แอฟริกาใต้ และไทย", true),
+
+      spacer(100),
+      heading2("1.1 กระบวนการหอบีบอ้อย (Milling Process Overview)"),
+
+      new Table({
+        width: { size: 9026, type: WidthType.DXA },
+        columnWidths: [1800, 7226],
+        rows: [
+          new TableRow({ children: [
+            new TableCell({ borders: thickBorders, width: { size: 1800, type: WidthType.DXA }, shading: { fill: COLORS.tableHeader, type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, verticalAlign: VerticalAlign.CENTER, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "ขั้นตอน", bold: true, color: COLORS.white, size: 20, font: "Arial" })] })] }),
+            new TableCell({ borders: thickBorders, width: { size: 7226, type: WidthType.DXA }, shading: { fill: COLORS.tableHeader, type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "รายละเอียดกระบวนการ", bold: true, color: COLORS.white, size: 20, font: "Arial" })] })] }),
+          ]}),
+          ...[
+            ["1. อ้อยเข้าหีบ", "อ้อยถูกตัดและส่งผ่านระบบสายพานเข้าสู่ชุดลูกหีบ (Mill Tandem) ซึ่งประกอบด้วยลูกหีบหลายชุดต่อเนื่องกัน"],
+            ["2. การบีบสกัด", "ลูกหีบบีบอ้อยเพื่อสกัดน้ำอ้อย (Mixed Juice) โดยใช้แรงอัดสูง น้ำอ้อยจะถูกเก็บรวบรวมและส่งไปยังส่วนทำความสะอาด"],
+            ["3. การเติมน้ำหีบ", "มีการเติมน้ำ (Imbibition Water) เพื่อล้างน้ำตาลที่เหลือค้างในกากอ้อย ช่วยเพิ่มประสิทธิภาพการสกัด"],
+            ["4. กากอ้อยออก", "กากอ้อย (Bagasse) ที่ผ่านการบีบแล้วออกจากชุดลูกหีบสุดท้าย นำไปใช้เป็นเชื้อเพลิงหม้อไอน้ำ"],
+            ["5. น้ำอ้อยส่งต่อ", "น้ำอ้อยผสม (Mixed Juice) ถูกส่งไปยังหอทำความสะอาดและต้มน้ำตาลต่อไป"],
+          ].map(([step, detail], i) => new TableRow({
+            children: [
+              new TableCell({ borders, width: { size: 1800, type: WidthType.DXA }, shading: { fill: i%2===0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR }, margins: { top: 80, bottom: 80, left: 120, right: 120 }, children: [new Paragraph({ children: [new TextRun({ text: step, bold: true, size: 20, font: "Arial", color: COLORS.darkGreen })] })] }),
+              new TableCell({ borders, width: { size: 7226, type: WidthType.DXA }, shading: { fill: i%2===0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR }, margins: { top: 80, bottom: 80, left: 120, right: 120 }, children: [new Paragraph({ children: [new TextRun({ text: detail, size: 20, font: "Arial", color: COLORS.darkGray })] })] }),
+            ]
+          }))
+        ]
+      }),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 2: Bagasse Parameters ====================
+      heading1("2. พารามิเตอร์กากอ้อย (Bagasse Parameters)"),
+      para("กากอ้อย (Bagasse) คือวัสดุเส้นใยที่เหลือหลังจากบีบสกัดน้ำอ้อยออกแล้ว การวิเคราะห์คุณสมบัติของกากอ้อยเป็นพื้นฐานสำคัญในการคำนวณประสิทธิภาพการหีบทั้งหมด องค์ประกอบหลักของกากอ้อย ได้แก่ น้ำตาล (Sucrose/Pol) ความชื้น (Moisture) และเส้นใย (Fiber)", true),
+
+      spacer(100),
+      heading2("2.1 Pol % Bagasse — ปริมาณน้ำตาลโพลาไรเซชันในกากอ้อย"),
+      boldPara("ที่มาและความเป็นมา", "คำว่า 'Pol' มาจาก Polarization ซึ่งเป็นการวัดการหมุนของแสงโพลาไรซ์ผ่านสารละลายน้ำตาล เริ่มใช้ในอุตสาหกรรมน้ำตาลตั้งแต่ศตวรรษที่ 19 เมื่อนักเคมีชาวเยอรมัน Heinrich Pellet ค้นพบว่าซูโครสมีคุณสมบัติหมุนแสงได้ตามความเข้มข้น"),
+      spacer(80),
+      boldPara("ความสำคัญ", "เป็นตัวชี้วัดหลักของน้ำตาลที่สูญเสียไปกับกากอ้อย หากค่านี้สูง แสดงว่าการหีบบีบยังไม่มีประสิทธิภาพเพียงพอ น้ำตาลยังคงค้างอยู่ในกาก ส่งผลต่อรายได้โดยตรง"),
+      spacer(80),
+      formulaBox("สูตรคำนวณ", "Pol%B = (Pol ใน Bagasse / นน.Bagasse) x 100", "วิเคราะห์โดย Polarimeter ในห้องปฏิบัติการ"),
+      spacer(100),
+
+      makeParamTable(
+        ["เกณฑ์", "ค่า Pol% Bagasse", "การประเมิน", "การดำเนินการ"],
+        [
+          ["ดีเยี่ยม (World Class)", "< 1.50%", "ประสิทธิภาพสูงมาก", "คงสภาพการทำงาน"],
+          ["ดี (Good)", "1.50 - 2.00%", "ประสิทธิภาพดี", "ปรับแต่งเล็กน้อย"],
+          ["พอใช้ (Fair)", "2.00 - 2.50%", "ต้องปรับปรุง", "ตรวจสอบแรงอัดลูกหีบ"],
+          ["ต่ำกว่ามาตรฐาน (Poor)", "> 2.50%", "ต้องแก้ไขด่วน", "หยุดตรวจสอบระบบ"],
+        ],
+        [2200, 2200, 2100, 2526]
+      ),
+
+      spacer(150),
+      heading2("2.2 Moisture % Bagasse — ความชื้นในกากอ้อย"),
+      boldPara("ที่มาและความเป็นมา", "การวัดความชื้นในกากอ้อยเป็นสิ่งที่โรงงานน้ำตาลทั่วโลกให้ความสำคัญมาตั้งแต่ยุคการปฏิวัติอุตสาหกรรม เนื่องจากกากอ้อยถูกนำไปใช้เป็นเชื้อเพลิงหม้อไอน้ำ ความชื้นจึงส่งผลต่อค่าความร้อน (Calorific Value) โดยตรง"),
+      spacer(80),
+      boldPara("ความสำคัญสองด้าน", "(1) ด้านการหีบ: ความชื้นสูงแสดงถึงการบีบน้ำออกได้ดี แต่ถ้าสูงเกินไปอาจมีปัญหาในระบบหม้อไอน้ำ (2) ด้านพลังงาน: กากอ้อยที่ชื้นเกินไปจะเผาไหม้ได้ไม่สมบูรณ์ ลดประสิทธิภาพการผลิตไอน้ำ"),
+      spacer(80),
+      formulaBox("สูตรคำนวณ", "M%B = (น้ำหนักน้ำ / น้ำหนักกากอ้อย) x 100", "วิเคราะห์โดยการอบแห้ง (Oven Drying Method)"),
+      spacer(100),
+
+      makeParamTable(
+        ["เกณฑ์", "ค่า Moisture% Bagasse", "ผลต่อหม้อไอน้ำ"],
+        [
+          ["เหมาะสมที่สุด", "45 - 48%", "เผาไหม้สมบูรณ์ ประสิทธิภาพสูงสุด"],
+          ["ยอมรับได้", "48 - 50%", "เผาไหม้ได้ดี ค่าความร้อนลดลงเล็กน้อย"],
+          ["ชื้นเกินไป", "> 50%", "เผาไหม้ไม่สมบูรณ์ ควันดำ ประสิทธิภาพต่ำ"],
+          ["แห้งเกินไป", "< 45%", "เสี่ยงไฟไหม้ในระบบลำเลียง"],
+        ],
+        [2200, 2526, 4300]
+      ),
+
+      spacer(150),
+      heading2("2.3 Fiber % Bagasse — ปริมาณเส้นใยในกากอ้อย"),
+      boldPara("ที่มาและความเป็นมา", "Fiber หรือเส้นใยเซลลูโลสในกากอ้อยเป็นโครงสร้างทางกายภาพของต้นอ้อย การวัด Fiber % Bagasse เริ่มเป็นมาตรฐานสากลหลังจาก ISSCT กำหนดสูตรการคำนวณ Fiber % Cane ซึ่งเชื่อมโยงกับค่า Fiber % Bagasse"),
+      spacer(80),
+      boldPara("ความสำคัญ", "ค่า Fiber ใน Bagasse ใช้คำนวณปริมาณเส้นใยที่ผ่านการหีบ เพื่อตรวจสอบความสมดุลของสมการมวล (Mass Balance) และคำนวณค่า Fiber % Cane ซึ่งเป็นคุณสมบัติพื้นฐานของวัตถุดิบอ้อย"),
+      spacer(80),
+      formulaBox("สูตรคำนวณ (ISSCT Standard)", "F%B = 100 - M%B - Brix%B", "ใช้หลัก Mass Balance: ส่วนประกอบรวม = 100%"),
+      spacer(80),
+      boldPara("หลักการ Mass Balance ของกากอ้อย", "กากอ้อยประกอบด้วยองค์ประกอบ 3 ส่วนเสมอ: น้ำ (Moisture) + น้ำตาลและสารละลาย (Brix) + เส้นใย (Fiber) = 100% ดังนั้น Fiber % Bagasse = 100 - Moisture% Bagasse - Brix% Bagasse"),
+
+      spacer(150),
+      heading2("2.4 Brix % Bagasse — ปริมาณของแข็งที่ละลายได้ในกากอ้อย"),
+      boldPara("ที่มาและความเป็นมา", "Brix เป็นหน่วยที่ตั้งชื่อตาม Adolf Brix นักวิทยาศาสตร์ชาวเยอรมันในคริสต์ศตวรรษที่ 19 วัดปริมาณของแข็งทั้งหมดที่ละลายในสารละลาย ในกากอ้อย Brix แทนน้ำตาลและสารอื่นๆ ที่ยังคงค้างอยู่"),
+      spacer(80),
+      boldPara("ความสำคัญ", "Brix % Bagasse ใช้คำนวณปริมาณน้ำตาลที่สูญเสียในกาก และใช้ในสมการ Mass Balance เพื่อคำนวณ Fiber % Bagasse ค่านี้ต้องต่ำเพื่อแสดงว่าน้ำตาลถูกสกัดออกได้มากที่สุด"),
+      spacer(80),
+      formulaBox("สูตรคำนวณ", "Brix%B = (น้ำหนัก Total Solids / น้ำหนัก Bagasse) x 100", "วิเคราะห์โดย Refractometer หรือ Density method"),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 3: Bagasse Quantity ====================
+      heading1("3. ปริมาณกากอ้อย (Bagasse Quantity Parameters)"),
+
+      heading2("3.1 Bagasse (tons) — ปริมาณกากอ้อยเป็นตัน"),
+      boldPara("ที่มาและความสำคัญ", "การวัดปริมาณกากอ้อยเป็นตันเป็นการวัดทางกายภาพพื้นฐานที่สุด ใช้ในการวางแผนพลังงาน การจัดการเชื้อเพลิงสำหรับหม้อไอน้ำ และการขายกากอ้อยส่วนเกินในกรณีที่ผลิตพลังงานได้เกินความต้องการ"),
+      spacer(80),
+      formulaBox("สูตรคำนวณ", "Bagasse (tons) = Cane (tons) x (Bagasse% Cane / 100)", "คำนวณจากอ้อยที่หีบคูณด้วยอัตราส่วนกากอ้อยต่ออ้อย"),
+      spacer(80),
+      boldPara("การใช้ประโยชน์ทางธุรกิจ", "ปริมาณกากอ้อยส่งผลต่อ: (1) ความสามารถในการผลิตไฟฟ้าจาก Biomass (2) รายได้จากการขายกากอ้อยส่วนเกิน (3) การวางแผนพื้นที่จัดเก็บ"),
+
+      spacer(150),
+      heading2("3.2 Bagasse % Cane — สัดส่วนกากอ้อยต่ออ้อย"),
+      boldPara("ที่มาและความเป็นมา", "Bagasse % Cane หรือที่เรียกว่า Bagasse Extraction เป็นพารามิเตอร์มาตรฐานที่ ISSCT กำหนดให้ใช้เปรียบเทียบประสิทธิภาพการหีบระหว่างโรงงานต่างๆ ทั่วโลก ค่านี้บอกว่าจากอ้อย 100 ส่วน จะได้กากอ้อยกี่ส่วน"),
+      spacer(80),
+      boldPara("ความสำคัญ", "Bagasse % Cane เป็นฟังก์ชันของ Fiber % Cane (คุณสมบัติอ้อย) และ Moisture % Bagasse (ประสิทธิภาพการหีบ) การที่ค่านี้สูงขึ้นหมายความว่าได้กากอ้อยมากขึ้น ซึ่งดีสำหรับการผลิตพลังงาน แต่ต้องตรวจสอบว่าไม่ได้เกิดจากการหีบที่มีน้ำตาลสูญเสียมากเกินไป"),
+      spacer(80),
+      formulaBox("สูตรสากล ISSCT", "B%C = F%C / (F%B/100)", "F%C = Fiber%Cane, F%B = Fiber%Bagasse"),
+      spacer(60),
+      formulaBox("สูตรอีกรูปแบบ", "B%C = Bagasse(tons) / Cane(tons) x 100", "วัดจากตาชั่งโดยตรง (ถ้ามีระบบชั่งกาก)"),
+
+      makeParamTable(
+        ["ประเทศ/ภูมิภาค", "ค่า Bagasse% Cane ทั่วไป", "ลักษณะอ้อย"],
+        [
+          ["ออสเตรเลีย", "26 - 28%", "อ้อย Fiber สูง"],
+          ["บราซิล", "27 - 30%", "อ้อยพันธุ์ผสม"],
+          ["อินเดีย", "28 - 32%", "อ้อย Fiber สูงมาก"],
+          ["ไทย", "25 - 29%", "อ้อยขนาดกลาง"],
+          ["แอฟริกาใต้", "26 - 28%", "อ้อยพื้นเมือง"],
+        ],
+        [2800, 2800, 3426]
+      ),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 4: Mixed Juice ====================
+      heading1("4. น้ำอ้อยผสม (Mixed Juice Parameters)"),
+      para("น้ำอ้อยผสม (Mixed Juice) คือน้ำอ้อยที่ได้จากการบีบอ้อยและผสมกับน้ำหีบ (Imbibition Water) เป็นผลิตภัณฑ์หลักที่ออกจากหอบีบอ้อยและถูกส่งไปยังกระบวนการถัดไป คุณภาพและปริมาณของน้ำอ้อยผสมสะท้อนประสิทธิภาพการหีบโดยตรง", true),
+
+      spacer(100),
+      heading2("4.1 Mixed Juice (tons) — ปริมาณน้ำอ้อยผสมเป็นตัน"),
+      boldPara("ที่มาและความสำคัญ", "ปริมาณน้ำอ้อยผสมเป็นตัวชี้วัดทางปริมาณที่สำคัญในการวางแผนกำลังการผลิตของทุกหน่วยงานในโรงงาน ตั้งแต่ถังรับน้ำอ้อย หม้อต้ม ไปจนถึงหม้อเคี่ยว เนื่องจากทุกส่วนต้องออกแบบให้รองรับอัตราการไหลของน้ำอ้อยผสมได้"),
+      spacer(80),
+      formulaBox("สูตรจาก Mass Balance", "MJ(tons) = Cane(tons) + Imbibition(tons) - Bagasse(tons)", "Mass Balance: Input = Output (อ้อย + น้ำหีบ = น้ำอ้อย + กาก)"),
+      spacer(60),
+      formulaBox("สูตรอีกรูปแบบ", "MJ(tons) = Cane(tons) x (MJ%Cane / 100)", "คำนวณจากอัตราส่วน MJ%Cane ที่วัดได้"),
+
+      spacer(150),
+      heading2("4.2 Mixed Juice % Cane — สัดส่วนน้ำอ้อยผสมต่ออ้อย"),
+      boldPara("ที่มาและความเป็นมา", "Mixed Juice % Cane หรือ MJ% Cane เป็นตัวชี้วัดประสิทธิภาพการสกัดน้ำอ้อยในรูปของน้ำหนัก บอกว่าจากอ้อย 100 ส่วน จะได้น้ำอ้อยผสมกี่ส่วน ค่านี้ขึ้นอยู่กับปริมาณน้ำหีบที่เติมและความสามารถในการสกัดน้ำของชุดลูกหีบ"),
+      spacer(80),
+      boldPara("ความสำคัญ", "ค่า MJ% Cane ที่สูงขึ้นหมายความว่าสามารถสกัดน้ำตาลออกจากอ้อยได้มากขึ้น แต่ต้องสมดุลกับปริมาณน้ำหีบที่เติม เนื่องจากน้ำหีบมากเกินไปทำให้น้ำอ้อยเจือจาง ส่งผลต่อการระเหยน้ำในขั้นตอนถัดไป"),
+      spacer(80),
+      formulaBox("สูตรคำนวณ", "MJ%Cane = (Mixed Juice tons / Cane tons) x 100", "วัดจากมิเตอร์น้ำอ้อยและอ้อยหีบ"),
+
+      makeParamTable(
+        ["ระดับประสิทธิภาพ", "MJ% Cane", "หมายเหตุ"],
+        [
+          ["สูงมาก (High Imbibition)", "> 110%", "เติมน้ำหีบมาก ต้องใช้พลังงานระเหยสูง"],
+          ["ปกติ (Normal)", "95 - 110%", "สมดุลระหว่างการสกัดและการระเหย"],
+          ["ต่ำ (Low Imbibition)", "< 95%", "น้ำหีบน้อย อาจสูญเสียน้ำตาลในกาก"],
+        ],
+        [2800, 2500, 3726]
+      ),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 5: Extraction ====================
+      heading1("5. ประสิทธิภาพการสกัด (Extraction Parameters)"),
+      para("การวัดประสิทธิภาพการสกัดน้ำตาลเป็นหัวใจสำคัญของการประเมินหอบีบอ้อย มีสองพารามิเตอร์หลักที่ใช้ในอุตสาหกรรมน้ำตาลสากล ได้แก่ % Pol Extraction และ Reduced % Extraction", true),
+
+      spacer(100),
+      heading2("5.1 % Pol Extraction — ประสิทธิภาพการสกัดน้ำตาล"),
+      boldPara("ที่มาและความเป็นมา", "% Pol Extraction หรือ % Extraction เป็นพารามิเตอร์ที่สำคัญที่สุดในการประเมินประสิทธิภาพหอบีบอ้อย พัฒนาขึ้นในช่วงต้นศตวรรษที่ 20 โดยนักวิทยาศาสตร์อุตสาหกรรมน้ำตาล ปัจจุบัน ISSCT กำหนดวิธีการคำนวณมาตรฐาน"),
+      spacer(80),
+      boldPara("ความสำคัญ", "% Pol Extraction บอกว่าจากน้ำตาล (Pol) ทั้งหมดในอ้อย 100 หน่วย สามารถสกัดเข้าน้ำอ้อยได้กี่หน่วย ส่วนที่เหลือสูญเสียไปกับกากอ้อย นี่คือตัวชี้วัดที่ผู้บริหารโรงงานต้องติดตามอย่างใกล้ชิดที่สุด"),
+      spacer(80),
+      formulaBox("สูตรมาตรฐาน ISSCT", "Pol Ext% = (Pol ใน MJ / Pol ใน Cane) x 100", "Pol ใน Cane = Pol%Cane x Cane (tons)"),
+      spacer(60),
+      formulaBox("สูตรอีกรูปแบบ (ใช้บ่อย)", "E% = 100 - (B%C x Pol%B / Pol%C)", "คำนวณจาก Bagasse%Cane, Pol%Bagasse, Pol%Cane"),
+
+      makeParamTable(
+        ["ระดับ", "% Pol Extraction", "การประเมิน"],
+        [
+          ["World Class", "> 97.5%", "ประสิทธิภาพสูงสุดในระดับโลก (ออสเตรเลีย บราซิล)"],
+          ["ดีเยี่ยม", "96.5 - 97.5%", "ประสิทธิภาพสูง โรงงานชั้นนำของไทย"],
+          ["ดี", "95.5 - 96.5%", "ประสิทธิภาพดี ค่าเฉลี่ยอุตสาหกรรมไทย"],
+          ["พอใช้", "94.0 - 95.5%", "ต้องปรับปรุง ทบทวนการบำรุงรักษาลูกหีบ"],
+          ["ต่ำ", "< 94.0%", "ต้องแก้ไขด่วน ตรวจสอบสภาพลูกหีบทันที"],
+        ],
+        [2000, 2526, 4500]
+      ),
+
+      spacer(150),
+      heading2("5.2 Reduced % Extraction — ประสิทธิภาพการสกัดแบบปรับค่า"),
+      boldPara("ที่มาและความเป็นมา", "Reduced % Extraction พัฒนาขึ้นเพื่อแก้ข้อจำกัดของ % Pol Extraction ที่ถูกรบกวนโดยปริมาณน้ำหีบที่เติม กล่าวคือ การเพิ่มน้ำหีบสามารถเพิ่ม % Pol Extraction ได้โดยไม่ได้แสดงประสิทธิภาพจริงของลูกหีบ ISSCT จึงพัฒนา Reduced Extraction เพื่อกำจัดผลกระทบของน้ำหีบออก"),
+      spacer(80),
+      boldPara("ความสำคัญ", "Reduced % Extraction เป็นตัวชี้วัดที่แสดงประสิทธิภาพของลูกหีบล้วนๆ โดยไม่ขึ้นอยู่กับปริมาณน้ำหีบ จึงใช้เปรียบเทียบประสิทธิภาพระหว่างวัน ระหว่างโรงงาน และระหว่างฤดูกาลได้อย่างยุติธรรม"),
+      spacer(80),
+      formulaBox("สูตรสากล ISSCT", "RE% = (E% - D x Imb%C) / (1 - D x Imb%C/100)", "D = Dilution factor, Imb%C = Imbibition%Cane"),
+      spacer(60),
+      formulaBox("สูตรอย่างง่าย (Simplified)", "RE% = E% - k x (Imb%C)", "k = ค่าคงที่ประมาณ 0.1 - 0.15 (ขึ้นกับ Brix น้ำอ้อย)"),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 6: Loss & Imbibition ====================
+      heading1("6. การสูญเสียและน้ำหีบ (Milling Loss & Imbibition)"),
+
+      heading2("6.1 Milling Loss — การสูญเสียน้ำตาลในกระบวนการหีบ"),
+      boldPara("ที่มาและความเป็นมา", "Milling Loss คือปริมาณน้ำตาลที่สูญเสียไปในกระบวนการหีบบีบทั้งหมด ครอบคลุมทั้ง Undetermined Loss (การสูญเสียที่ไม่สามารถระบุสาเหตุได้) และ Bagasse Loss (น้ำตาลที่ยังอยู่ในกากอ้อย) แนวคิดนี้พัฒนาขึ้นเพื่อใช้ในการจัดทำ Factory Balance Sheet"),
+      spacer(80),
+      boldPara("ความสำคัญ", "Milling Loss เป็นตัวชี้วัดความสูญเสียทางเศรษฐศาสตร์โดยตรง ในโรงงานที่หีบอ้อย 10,000 ตันต่อวัน หากลดการสูญเสีย 0.1% จะรักษาน้ำตาลได้ประมาณ 10 ตันต่อวัน มูลค่าหลายแสนบาทต่อวัน"),
+      spacer(80),
+      formulaBox("สูตรคำนวณ", "Milling Loss = Pol%Cane - Pol Extracted%Cane", "หน่วยเป็น % ต่ออ้อย (% on cane basis)"),
+      spacer(60),
+      formulaBox("การคำนวณมูลค่า", "Loss (tons sugar) = Cane(tons) x Milling Loss% / 100", "แล้วคูณกับราคาน้ำตาล (บาท/ตัน)"),
+      spacer(100),
+
+      makeParamTable(
+        ["ประเภทการสูญเสีย", "แหล่งที่มา", "วิธีลด"],
+        [
+          ["Bagasse Loss", "น้ำตาลในกากอ้อย (Pol%Bagasse)", "เพิ่มแรงอัดลูกหีบ เพิ่มน้ำหีบ"],
+          ["Juice Loss", "น้ำอ้อยรั่วซึมออกนอกระบบ", "ตรวจสอบซีล ท่อ ถาดรองน้ำอ้อย"],
+          ["Undefined Loss", "การหมัก การเจือจาง ข้อผิดพลาดการวัด", "ลดเวลาน้ำอ้อยค้างอยู่ในระบบ"],
+          ["Machinery Loss", "น้ำตาลติดบนลูกหีบและอุปกรณ์", "ล้างทำความสะอาดสม่ำเสมอ"],
+        ],
+        [2400, 3200, 3426]
+      ),
+
+      spacer(150),
+      heading2("6.2 Imbibition % Cane — สัดส่วนน้ำหีบต่ออ้อย"),
+      boldPara("ที่มาและความเป็นมา", "Imbibition หรือน้ำหีบเป็นเทคนิคที่พัฒนาขึ้นในช่วงปลายศตวรรษที่ 19 เพื่อเพิ่มประสิทธิภาพการสกัดน้ำตาลจากกากอ้อย น้ำจะถูกเติมที่ชุดลูกหีบสุดท้ายและไหลย้อนกลับ (Counter-current) ผ่านลูกหีบแต่ละชุด"),
+      spacer(80),
+      boldPara("ความสำคัญ", "Imbibition เป็นตัวแปรที่ผู้ควบคุมสามารถปรับได้โดยตรง การเพิ่ม Imbibition จะเพิ่ม % Extraction แต่ทำให้น้ำอ้อยเจือจางลง เพิ่มภาระการระเหยน้ำ และเพิ่มการใช้ไอน้ำ จึงต้องหาจุดสมดุลที่เหมาะสม"),
+      spacer(80),
+      formulaBox("สูตรคำนวณ", "Imb%Cane = (น้ำหีบ tons / อ้อยหีบ tons) x 100", "วัดโดยมิเตอร์น้ำโดยตรง"),
+      spacer(60),
+      formulaBox("ความสัมพันธ์กับ Extraction", "ทุก 1% Imbibition เพิ่ม = Extraction เพิ่ม ~0.15%", "กฎทั่วไปของอุตสาหกรรม (Rule of Thumb)"),
+      spacer(100),
+
+      makeParamTable(
+        ["ระดับ", "Imbibition% Cane", "ผลต่อระบบ"],
+        [
+          ["ต่ำมาก", "< 20%", "สกัดน้ำตาลได้น้อย สูญเสียมาก ไม่แนะนำ"],
+          ["ต่ำ", "20 - 25%", "ประหยัดน้ำแต่สูญเสียน้ำตาลสูง"],
+          ["เหมาะสม", "25 - 30%", "สมดุลที่ดีระหว่างการสกัดและการระเหย"],
+          ["สูง", "30 - 35%", "สกัดได้ดี แต่ใช้ไอน้ำมากขึ้น"],
+          ["สูงมาก", "> 35%", "สกัดสูงสุด แต่ภาระหม้อระเหยสูงมาก"],
+        ],
+        [1800, 2526, 4700]
+      ),
+
+      spacer(150),
+      heading2("6.3 Imbibition % Fiber — สัดส่วนน้ำหีบต่อเส้นใย"),
+      boldPara("ที่มาและความเป็นมา", "Imbibition % Fiber เป็นการแสดงอัตราส่วนน้ำหีบในรูปแบบที่ถูกต้องทางทฤษฎีมากกว่า Imbibition % Cane เนื่องจาก Fiber คือส่วนที่ต้องการน้ำซึมผ่านจริงๆ ไม่ใช่น้ำตาลหรือน้ำในอ้อย ค่านี้เป็นมาตรฐานสากลที่ ISSCT แนะนำให้ใช้"),
+      spacer(80),
+      boldPara("ความสำคัญ", "เนื่องจาก Fiber % Cane ของอ้อยแต่ละล็อตไม่เท่ากัน การใช้ Imbibition % Fiber จะทำให้การเปรียบเทียบและการตั้งค่าระบบมีความแม่นยำมากกว่า โดยเฉพาะเมื่ออ้อยที่หีบมาจากหลายแหล่งที่มีคุณสมบัติต่างกัน"),
+      spacer(80),
+      formulaBox("สูตรสากล ISSCT", "Imb%Fiber = (Imbibition tons / Fiber tons in Cane) x 100", "Fiber tons = Cane tons x Fiber%Cane / 100"),
+      spacer(60),
+      formulaBox("ค่าเป้าหมาย (Target)", "Imb%Fiber = 200 - 300%", "ค่าแนะนำจาก ISSCT สำหรับ 4-5 Mill Tandem"),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 7: Standard Formulas Summary ====================
+      heading1("7. สรุปสูตรมาตรฐานสากล (International Standard Formulas Summary)"),
+      para("ส่วนนี้รวบรวมสูตรคำนวณมาตรฐานทั้งหมดที่ ISSCT (International Society of Sugar Cane Technologists) และองค์กรอุตสาหกรรมน้ำตาลสากลรับรอง เพื่อให้ผู้บริหารและทีมเทคนิคใช้อ้างอิงในการทำงาน", true),
+
+      spacer(120),
+      heading2("7.1 ตารางสรุปสูตรทั้งหมด (Complete Formula Reference)"),
+
+      new Table({
+        width: { size: 9026, type: WidthType.DXA },
+        columnWidths: [2200, 3826, 3000],
+        rows: [
+          new TableRow({
+            tableHeader: true,
+            children: [
+              new TableCell({ borders: thickBorders, width: { size: 2200, type: WidthType.DXA }, shading: { fill: COLORS.darkGreen, type: ShadingType.CLEAR }, margins: { top: 120, bottom: 120, left: 150, right: 150 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "พารามิเตอร์", bold: true, color: COLORS.white, size: 22, font: "Arial" })] })] }),
+              new TableCell({ borders: thickBorders, width: { size: 3826, type: WidthType.DXA }, shading: { fill: COLORS.darkGreen, type: ShadingType.CLEAR }, margins: { top: 120, bottom: 120, left: 150, right: 150 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "สูตรคำนวณมาตรฐาน", bold: true, color: COLORS.white, size: 22, font: "Arial" })] })] }),
+              new TableCell({ borders: thickBorders, width: { size: 3000, type: WidthType.DXA }, shading: { fill: COLORS.darkGreen, type: ShadingType.CLEAR }, margins: { top: 120, bottom: 120, left: 150, right: 150 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "ค่าเป้าหมาย / หมายเหตุ", bold: true, color: COLORS.white, size: 22, font: "Arial" })] })] }),
+            ]
+          }),
+          ...[
+            ["Pol% Bagasse", "= (Pol in Bagasse / Bagasse wt) x 100", "< 2.0% (ดี), < 1.5% (ดีมาก)"],
+            ["Moisture% Bagasse", "= (Water weight / Bagasse wt) x 100", "45 - 48% (เหมาะสม)"],
+            ["Fiber% Bagasse", "= 100 - Moisture%B - Brix%B", "45 - 50% (ทั่วไป)"],
+            ["Brix% Bagasse", "= (Total Solids / Bagasse wt) x 100", "1 - 3% (ค่าเฉลี่ย)"],
+            ["Bagasse (tons)", "= Cane(t) x B%C / 100", "ขึ้นกับ Fiber%Cane"],
+            ["Bagasse% Cane", "= Fiber%C / (Fiber%B / 100)", "25 - 30% (ทั่วไปไทย)"],
+            ["Mixed Juice (tons)", "= Cane(t) + Imb(t) - Bagasse(t)", "Mass Balance"],
+            ["Mixed Juice% Cane", "= MJ(t) / Cane(t) x 100", "95 - 110% (ปกติ)"],
+            ["% Pol Extraction", "= (Pol in MJ / Pol in Cane) x 100", "> 96.5% (ดี), > 97.5% (ดีมาก)"],
+            ["Reduced% Extraction", "= (E% - D x Imb%C) / (1 - D x Imb%C/100)", "เปรียบเทียบประสิทธิภาพจริง"],
+            ["Milling Loss", "= Pol%Cane - Pol Extracted%Cane", "< 1.5%Cane (ดี)"],
+            ["Imbibition% Cane", "= Imb(t) / Cane(t) x 100", "25 - 30% (แนะนำ)"],
+            ["Imbibition% Fiber", "= Imb(t) / Fiber in Cane(t) x 100", "200 - 300% (ISSCT)"],
+          ].map(([param, formula, note], i) => new TableRow({
+            children: [
+              new TableCell({ borders, width: { size: 2200, type: WidthType.DXA }, shading: { fill: i%2===0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR }, margins: { top: 90, bottom: 90, left: 150, right: 150 }, children: [new Paragraph({ children: [new TextRun({ text: param, bold: true, size: 20, font: "Arial", color: COLORS.darkGreen })] })] }),
+              new TableCell({ borders, width: { size: 3826, type: WidthType.DXA }, shading: { fill: i%2===0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR }, margins: { top: 90, bottom: 90, left: 150, right: 150 }, children: [new Paragraph({ children: [new TextRun({ text: formula, size: 19, font: "Courier New", color: COLORS.gold })] })] }),
+              new TableCell({ borders, width: { size: 3000, type: WidthType.DXA }, shading: { fill: i%2===0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR }, margins: { top: 90, bottom: 90, left: 150, right: 150 }, children: [new Paragraph({ children: [new TextRun({ text: note, size: 19, font: "Arial", color: COLORS.darkGray, italics: true })] })] }),
+            ]
+          }))
+        ]
+      }),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 8: Mass Balance ====================
+      heading1("8. การทำ Factory Balance Sheet และ Mass Balance"),
+      para("การจัดทำ Factory Balance Sheet หรือ Mass Balance เป็นเครื่องมือสำคัญในการตรวจสอบความถูกต้องของข้อมูลทั้งหมดในหอบีบอ้อย หลักการพื้นฐานคือ 'สสารไม่สูญหาย' ดังนั้น น้ำหนักของวัสดุที่เข้าระบบจะต้องเท่ากับน้ำหนักของวัสดุที่ออก", true),
+
+      spacer(100),
+      heading2("8.1 Mass Balance ของหอบีบอ้อย"),
+
+      new Table({
+        width: { size: 9026, type: WidthType.DXA },
+        columnWidths: [4513, 4513],
+        rows: [
+          new TableRow({ children: [
+            new TableCell({ borders: thickBorders, width: { size: 4513, type: WidthType.DXA }, shading: { fill: COLORS.tableHeader, type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 150, right: 150 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "INPUT (วัสดุเข้า)", bold: true, color: COLORS.white, size: 22, font: "Arial" })] })] }),
+            new TableCell({ borders: thickBorders, width: { size: 4513, type: WidthType.DXA }, shading: { fill: COLORS.tableHeader, type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 150, right: 150 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "OUTPUT (วัสดุออก)", bold: true, color: COLORS.white, size: 22, font: "Arial" })] })] }),
+          ]}),
+          new TableRow({ children: [
+            new TableCell({ borders, width: { size: 4513, type: WidthType.DXA }, shading: { fill: COLORS.paleGreen, type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 150, right: 150 }, children: [
+              new Paragraph({ spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "1. อ้อย (Cane) = X tons", bold: true, size: 21, font: "Arial", color: COLORS.darkGreen })] }),
+              new Paragraph({ spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "2. น้ำหีบ (Imbibition Water) = Y tons", bold: true, size: 21, font: "Arial", color: COLORS.darkGreen })] }),
+              new Paragraph({ spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "รวม Input = X + Y tons", bold: true, size: 22, font: "Arial", color: COLORS.gold })] }),
+            ] }),
+            new TableCell({ borders, width: { size: 4513, type: WidthType.DXA }, shading: { fill: "FFF9C4", type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 150, right: 150 }, children: [
+              new Paragraph({ spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "1. น้ำอ้อยผสม (Mixed Juice) = A tons", bold: true, size: 21, font: "Arial", color: COLORS.darkGreen })] }),
+              new Paragraph({ spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "2. กากอ้อย (Bagasse) = B tons", bold: true, size: 21, font: "Arial", color: COLORS.darkGreen })] }),
+              new Paragraph({ spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "รวม Output = A + B tons", bold: true, size: 22, font: "Arial", color: COLORS.gold })] }),
+            ] }),
+          ]}),
+          new TableRow({ children: [
+            new TableCell({ borders: thickBorders, width: { size: 9026, type: WidthType.DXA }, shading: { fill: COLORS.accentGreen, type: ShadingType.CLEAR }, margins: { top: 120, bottom: 120, left: 150, right: 150 }, columnSpan: 2, children: [
+              new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "BALANCE: X + Y = A + B  (ถ้าไม่เท่ากัน ต้องตรวจสอบการวัด)", bold: true, size: 22, font: "Arial", color: COLORS.darkGreen })] }),
+            ] }),
+          ]}),
+        ]
+      }),
+
+      spacer(150),
+      heading2("8.2 การตรวจสอบ Pol Balance"),
+      para("นอกจาก Mass Balance แล้ว โรงงานน้ำตาลยังต้องทำ Pol Balance เพื่อตรวจสอบว่าน้ำตาล (Pol) ที่เข้ามากับอ้อยถูกบัญชีครบหรือไม่", true),
+      spacer(80),
+      formulaBox("Pol Balance", "Pol in Cane = Pol in MJ + Pol in Bagasse + Undefined Loss", "ควรมีความคลาดเคลื่อนไม่เกิน 0.5%"),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 9: KPI Dashboard ====================
+      heading1("9. ตัวชี้วัดผลการดำเนินงาน (KPI Dashboard for Management)"),
+      para("ผู้บริหารระดับสูงควรติดตามตัวชี้วัดหลักต่อไปนี้เป็นประจำทุกวัน ทุกสัปดาห์ และทุกฤดูกาลการผลิต เพื่อให้การตัดสินใจมีข้อมูลสนับสนุนที่ครบถ้วนและถูกต้อง", true),
+
+      spacer(100),
+      heading2("9.1 Dashboard ประจำวัน (Daily KPIs)"),
+
+      new Table({
+        width: { size: 9026, type: WidthType.DXA },
+        columnWidths: [2500, 1700, 1700, 3126],
+        rows: [
+          new TableRow({ tableHeader: true, children: [
+            new TableCell({ borders: thickBorders, width: { size: 2500, type: WidthType.DXA }, shading: { fill: COLORS.darkGreen, type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "KPI", bold: true, color: COLORS.white, size: 21, font: "Arial" })] })] }),
+            new TableCell({ borders: thickBorders, width: { size: 1700, type: WidthType.DXA }, shading: { fill: COLORS.darkGreen, type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "เป้าหมาย", bold: true, color: COLORS.white, size: 21, font: "Arial" })] })] }),
+            new TableCell({ borders: thickBorders, width: { size: 1700, type: WidthType.DXA }, shading: { fill: COLORS.darkGreen, type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "เตือนภัย", bold: true, color: COLORS.white, size: 21, font: "Arial" })] })] }),
+            new TableCell({ borders: thickBorders, width: { size: 3126, type: WidthType.DXA }, shading: { fill: COLORS.darkGreen, type: ShadingType.CLEAR }, margins: { top: 100, bottom: 100, left: 120, right: 120 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "ผลกระทบถ้าต่ำกว่าเป้า", bold: true, color: COLORS.white, size: 21, font: "Arial" })] })] }),
+          ]}),
+          ...[
+            ["% Pol Extraction", "> 96.5%", "< 95.5%", "สูญเสียน้ำตาล ราย 0.1% = ~10 ตัน/วัน"],
+            ["Pol% Bagasse", "< 2.0%", "> 2.5%", "น้ำตาลตกค้างในกาก ต้นทุนสูงขึ้น"],
+            ["Moisture% Bagasse", "45-48%", "> 52%", "หม้อไอน้ำประสิทธิภาพต่ำ ไฟฟ้าขาด"],
+            ["Imbibition% Cane", "25-30%", "> 35%", "น้ำอ้อยเจือจาง ต้นทุนระเหยสูง"],
+            ["Milling Loss", "< 1.5%", "> 2.0%", "รายได้ลดลงโดยตรง"],
+          ].map(([kpi, target, warning, impact], i) => new TableRow({
+            children: [
+              new TableCell({ borders, width: { size: 2500, type: WidthType.DXA }, shading: { fill: i%2===0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR }, margins: { top: 90, bottom: 90, left: 120, right: 120 }, children: [new Paragraph({ children: [new TextRun({ text: kpi, bold: true, size: 20, font: "Arial", color: COLORS.darkGreen })] })] }),
+              new TableCell({ borders, width: { size: 1700, type: WidthType.DXA }, shading: { fill: i%2===0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR }, margins: { top: 90, bottom: 90, left: 120, right: 120 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: target, size: 20, font: "Arial", color: "1B5E20", bold: true })] })] }),
+              new TableCell({ borders, width: { size: 1700, type: WidthType.DXA }, shading: { fill: i%2===0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR }, margins: { top: 90, bottom: 90, left: 120, right: 120 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: warning, size: 20, font: "Arial", color: "B71C1C", bold: true })] })] }),
+              new TableCell({ borders, width: { size: 3126, type: WidthType.DXA }, shading: { fill: i%2===0 ? COLORS.white : COLORS.tableAlt, type: ShadingType.CLEAR }, margins: { top: 90, bottom: 90, left: 120, right: 120 }, children: [new Paragraph({ children: [new TextRun({ text: impact, size: 19, font: "Arial", color: COLORS.darkGray })] })] }),
+            ]
+          }))
+        ]
+      }),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 10: Troubleshooting ====================
+      heading1("10. การแก้ไขปัญหา (Troubleshooting Guide)"),
+      para("เมื่อพารามิเตอร์ใดพารามิเตอร์หนึ่งออกนอกเกณฑ์ การวิเคราะห์สาเหตุและแก้ไขอย่างเป็นระบบเป็นสิ่งจำเป็น ตารางต่อไปนี้รวบรวมปัญหาที่พบบ่อยและแนวทางแก้ไข", true),
+      spacer(100),
+
+      makeParamTable(
+        ["อาการ (Symptom)", "สาเหตุที่เป็นไปได้", "การแก้ไข"],
+        [
+          ["Pol%Bagasse สูงกว่า 2.5%", "แรงอัดลูกหีบน้อยเกินไป หรือน้ำหีบไม่เพียงพอ", "เพิ่มแรงอัด (Hydraulic Pressure) ตรวจสอบ Imbibition"],
+          ["Moisture%Bagasse สูงกว่า 52%", "แรงอัดลูกหีบน้อย หรือลูกหีบสึกหรอ", "เพิ่มแรงอัด ตรวจสอบสภาพผิวลูกหีบ"],
+          ["% Extraction ต่ำกว่า 95%", "ผลรวมของปัญหาทั้งระบบ", "ตรวจสอบทุกพารามิเตอร์ทำ Root Cause Analysis"],
+          ["Milling Loss สูงกว่า 2%", "น้ำตาลรั่วออกจากระบบ หรือการวัดผิดพลาด", "ตรวจสอบ Mass Balance และ Pol Balance ทันที"],
+          ["MJ Brix ต่ำผิดปกติ", "เติม Imbibition มากเกินไป หรือท่อน้ำรั่วในระบบ", "ตรวจสอบ Imbibition% และระบบท่อทั้งหมด"],
+          ["Bagasse%Cane สูงผิดปกติ", "Fiber%Cane สูงหรือ Moisture%Bagasse สูง", "ตรวจสอบคุณสมบัติอ้อยและการหีบ"],
+        ],
+        [2800, 3200, 3026]
+      ),
+
+      new Paragraph({ children: [new PageBreak()] }),
+
+      // ==================== SECTION 11: References ====================
+      heading1("11. เอกสารอ้างอิงและมาตรฐานสากล (References & International Standards)"),
+
+      heading2("11.1 องค์กรมาตรฐานสากล"),
+      bullet("ISSCT (International Society of Sugar Cane Technologists) — กำหนดสูตรคำนวณมาตรฐานทั้งหมดที่ใช้ในรายงานนี้"),
+      bullet("ICUMSA (International Commission for Uniform Methods of Sugar Analysis) — มาตรฐานการวิเคราะห์ทางเคมีสำหรับน้ำตาล"),
+      bullet("ISO 10523 — มาตรฐานการวัดค่าต่างๆ ในอุตสาหกรรมน้ำตาล"),
+      bullet("SRI (Sugar Research Institute, Australia) — งานวิจัยและมาตรฐานจากออสเตรเลีย"),
+      bullet("UNICA (Sugarcane Industry Union, Brazil) — มาตรฐานจากบราซิล ผู้ผลิตน้ำตาลรายใหญ่ที่สุดของโลก"),
+
+      spacer(120),
+      heading2("11.2 เอกสารหลักที่แนะนำ"),
+      bullet("Rein, P.W. (2007). Cane Sugar Engineering. Verlag Dr. Albert Bartens KG. — ตำราหลักของวิศวกรน้ำตาลทั่วโลก"),
+      bullet("ISSCT Milling Manual — คู่มือมาตรฐานการหีบอ้อยจาก ISSCT (ฉบับปรับปรุงล่าสุด)"),
+      bullet("Hugot, E. (1986). Handbook of Cane Sugar Engineering. 3rd edition. Elsevier. — คู่มืออ้างอิงคลาสสิก"),
+      bullet("Chen, J.C.P. & Chou, C.C. (1993). Cane Sugar Handbook. 12th edition. Wiley. — ฉบับมาตรฐานที่ใช้อ้างอิงในอุตสาหกรรม"),
+
+      spacer(200),
+
+      // Final note
+      new Table({
+        width: { size: 9026, type: WidthType.DXA },
+        columnWidths: [9026],
+        rows: [new TableRow({ children: [new TableCell({
+          borders: { top: { style: BorderStyle.SINGLE, size: 6, color: COLORS.lightGreen }, bottom: { style: BorderStyle.SINGLE, size: 6, color: COLORS.lightGreen }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
+          width: { size: 9026, type: WidthType.DXA },
+          shading: { fill: COLORS.paleGreen, type: ShadingType.CLEAR },
+          margins: { top: 200, bottom: 200, left: 300, right: 300 },
+          children: [
+            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 60, after: 100 }, children: [new TextRun({ text: "หมายเหตุสำหรับผู้บริหาร | Management Note", bold: true, size: 26, font: "Arial", color: COLORS.darkGreen })] }),
+            new Paragraph({ alignment: AlignmentType.BOTH, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "พารามิเตอร์ทั้ง 13 รายการในรายงานนี้มีความเชื่อมโยงกันอย่างเป็นระบบ การปรับตัวแปรใดตัวแปรหนึ่งจะส่งผลต่อตัวแปรอื่นๆ เสมอ ผู้บริหารควรพิจารณาภาพรวมของระบบ (Systems Thinking) แทนการมุ่งเน้นแต่ละพารามิเตอร์แยกกัน", size: 22, font: "Arial", color: COLORS.darkGray })] }),
+            new Paragraph({ alignment: AlignmentType.BOTH, spacing: { before: 60, after: 60 }, children: [new TextRun({ text: "All 13 parameters in this report are systematically interconnected. Adjusting any single variable will always affect others. Management should adopt a Systems Thinking approach rather than focusing on individual parameters in isolation.", size: 22, font: "Arial", color: COLORS.darkGray, italics: true })] }),
+          ]
+        })] })]
+      }),
+
+      spacer(100),
+      new Paragraph({
+        alignment: AlignmentType.RIGHT,
+        spacing: { before: 100, after: 0 },
+        children: [new TextRun({ text: "จัดทำโดย: ฝ่ายเทคนิคและวิจัย | ปี 2568", color: COLORS.medGray, size: 20, font: "Arial", italics: true })]
+      }),
+
+    ]
+  }]
+});
+
+Packer.toBuffer(doc).then(buffer => {
+  fs.writeFileSync("/mnt/user-data/outputs/Milling_House_Parameters_Report.docx", buffer);
+  console.log("Report created successfully!");
+}).catch(err => {
+  console.error("Error:", err);
+  process.exit(1);
+});
